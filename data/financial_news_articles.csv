@@ -1,0 +1,301 @@
+ticker,date,headline,sentiment_score,sentiment_label,positive_signals,negative_signals,source,relevance_score
+AAPL,2026-06-08T20:48:38.738992,AAPL faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Reuters,0.97
+MSFT,2026-06-08T20:48:38.738992,Analysts downgrade MSFT citing market challenges,0.0,Negative,0,3,Reuters,0.63
+GOOGL,2026-06-08T20:48:38.738992,GOOGL increases dividend by 18% signaling confidence in growth,1.0,Positive,1,0,Bloomberg,0.9
+JPM,2026-06-08T20:48:38.738992,Institutional investors increase position in JPM stock,0.5,Neutral,0,0,MarketWatch,0.9
+JNJ,2026-06-08T20:48:38.738992,JNJ wins industry recognition award,0.5,Neutral,0,0,Financial Times,0.65
+XOM,2026-06-08T20:48:38.738992,Major client drops XOM amid competitive pressures,0.5,Neutral,0,0,Bloomberg,0.68
+AMZN,2026-06-08T20:48:38.738992,AMZN maintains market position in steady trading,0.5,Neutral,0,0,MarketWatch,0.96
+NVDA,2026-06-08T20:48:38.738992,Institutional investors increase position in NVDA stock,0.5,Neutral,0,0,WSJ,0.92
+PFE,2026-06-08T20:48:38.738992,PFE reports declining margins amid rising costs,0.5,Neutral,0,0,Reuters,0.76
+WMT,2026-06-08T20:48:38.738992,WMT expands R&D team with new hires,0.5,Neutral,0,0,WSJ,0.99
+AAPL,2026-06-07T20:48:38.746903,AAPL announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.92
+MSFT,2026-06-07T20:48:38.746903,MSFT maintains market position in steady trading,0.5,Neutral,0,0,Bloomberg,0.94
+GOOGL,2026-06-07T20:48:38.746903,Major client drops GOOGL amid competitive pressures,0.5,Neutral,0,0,MarketWatch,0.77
+JPM,2026-06-07T20:48:38.746903,JPM launches innovative new device gaining analyst praise,1.0,Positive,1,0,Reuters,0.72
+JNJ,2026-06-07T20:48:38.746903,JNJ maintains market position in steady trading,0.5,Neutral,0,0,WSJ,0.99
+XOM,2026-06-07T20:48:38.746903,Institutional investors increase position in XOM stock,0.5,Neutral,0,0,Bloomberg,0.64
+AMZN,2026-06-07T20:48:38.746903,AMZN wins industry recognition award,0.5,Neutral,0,0,Reuters,0.8
+NVDA,2026-06-07T20:48:38.746903,NVDA updates product roadmap for upcoming year,0.5,Neutral,0,0,MarketWatch,0.88
+PFE,2026-06-07T20:48:38.746903,PFE participates in financial conference,0.5,Neutral,0,0,Bloomberg,0.95
+WMT,2026-06-07T20:48:38.746903,Analysts downgrade WMT citing market challenges,0.0,Negative,0,3,Financial Times,0.78
+AAPL,2026-06-06T20:48:38.746903,AAPL launches innovative new device gaining analyst praise,1.0,Positive,1,0,MarketWatch,0.67
+MSFT,2026-06-06T20:48:38.746903,Institutional investors increase position in MSFT stock,0.5,Neutral,0,0,WSJ,0.85
+GOOGL,2026-06-06T20:48:38.746903,GOOGL expands R&D team with new hires,0.5,Neutral,0,0,Reuters,0.7
+JPM,2026-06-06T20:48:38.746903,JPM expands R&D team with new hires,0.5,Neutral,0,0,Reuters,0.84
+JNJ,2026-06-06T20:48:38.746903,JNJ releases sustainability report,0.5,Neutral,0,0,Financial Times,0.84
+XOM,2026-06-06T20:48:38.746903,Institutional investors increase position in XOM stock,0.5,Neutral,0,0,Bloomberg,0.63
+AMZN,2026-06-06T20:48:38.746903,AMZN wins industry recognition award,0.5,Neutral,0,0,WSJ,0.86
+NVDA,2026-06-06T20:48:38.746903,NVDA maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,0.73
+PFE,2026-06-06T20:48:38.746903,PFE expands R&D team with new hires,0.5,Neutral,0,0,WSJ,0.83
+WMT,2026-06-06T20:48:38.746903,WMT announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.91
+AAPL,2026-06-05T20:48:38.746903,AAPL faces supply chain disruptions,0.5,Neutral,0,0,MarketWatch,0.68
+MSFT,2026-06-05T20:48:38.746903,Legal issues impact MSFT stock price,0.5,Neutral,0,0,Reuters,0.88
+GOOGL,2026-06-05T20:48:38.746903,GOOGL updates investor relations information,0.5,Neutral,0,0,Reuters,0.79
+JPM,2026-06-05T20:48:38.746903,JPM updates investor relations information,0.5,Neutral,0,0,Reuters,0.83
+JNJ,2026-06-05T20:48:38.746903,JNJ faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Financial Times,0.64
+XOM,2026-06-05T20:48:38.746903,XOM faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Financial Times,0.78
+AMZN,2026-06-05T20:48:38.746903,AMZN participates in financial conference,0.5,Neutral,0,0,Bloomberg,0.73
+NVDA,2026-06-05T20:48:38.746903,NVDA expands into emerging market in strategic move,0.5,Neutral,0,0,Bloomberg,0.75
+PFE,2026-06-05T20:48:38.746903,PFE releases sustainability report,0.5,Neutral,0,0,Bloomberg,0.67
+WMT,2026-06-05T20:48:38.746903,WMT releases sustainability report,0.5,Neutral,0,0,MarketWatch,0.96
+AAPL,2026-06-04T20:48:38.746903,AAPL updates product roadmap for upcoming year,0.5,Neutral,0,0,Reuters,0.95
+MSFT,2026-06-04T20:48:38.746903,MSFT updates product roadmap for upcoming year,0.5,Neutral,0,0,Bloomberg,0.69
+GOOGL,2026-06-04T20:48:38.746903,GOOGL beats Q3 earnings expectations with 28% revenue growth,1.0,Positive,2,0,Reuters,0.72
+JPM,2026-06-04T20:48:38.746903,JPM issues guidance cut for next quarter,0.5,Neutral,0,0,WSJ,0.87
+JNJ,2026-06-04T20:48:38.746903,JNJ announces major partnership with industry leader,0.5,Neutral,0,0,Reuters,0.61
+XOM,2026-06-04T20:48:38.746903,XOM increases dividend by 20% signaling confidence in growth,1.0,Positive,1,0,Bloomberg,0.97
+AMZN,2026-06-04T20:48:38.746903,AMZN updates product roadmap for upcoming year,0.5,Neutral,0,0,Bloomberg,0.72
+NVDA,2026-06-04T20:48:38.746903,"NVDA misses earnings expectations, stock falls 7%",0.0,Negative,0,2,WSJ,0.91
+PFE,2026-06-04T20:48:38.746903,PFE updates product roadmap for upcoming year,0.5,Neutral,0,0,Bloomberg,0.91
+WMT,2026-06-04T20:48:38.746903,WMT stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Bloomberg,0.7
+AAPL,2026-06-03T20:48:38.746903,AAPL wins industry recognition award,0.5,Neutral,0,0,WSJ,0.63
+MSFT,2026-06-03T20:48:38.746903,MSFT updates product roadmap for upcoming year,0.5,Neutral,0,0,Bloomberg,0.63
+GOOGL,2026-06-03T20:48:38.746903,GOOGL issues guidance cut for next quarter,0.5,Neutral,0,0,Reuters,0.94
+JPM,2026-06-03T20:48:38.746903,JPM participates in financial conference,0.5,Neutral,0,0,Reuters,0.8
+JNJ,2026-06-03T20:48:38.746903,JNJ issues guidance cut for next quarter,0.5,Neutral,0,0,Bloomberg,0.65
+XOM,2026-06-03T20:48:38.746903,Legal issues impact XOM stock price,0.5,Neutral,0,0,Reuters,0.72
+AMZN,2026-06-03T20:48:38.746903,AMZN faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,WSJ,0.95
+NVDA,2026-06-03T20:48:38.746903,NVDA stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,WSJ,0.83
+PFE,2026-06-03T20:48:38.746903,PFE updates investor relations information,0.5,Neutral,0,0,Bloomberg,0.69
+WMT,2026-06-03T20:48:38.746903,WMT maintains market position in steady trading,0.5,Neutral,0,0,Bloomberg,0.79
+AAPL,2026-06-02T20:48:38.746903,AAPL expands into emerging market in strategic move,0.5,Neutral,0,0,MarketWatch,0.91
+MSFT,2026-06-02T20:48:38.746903,MSFT releases sustainability report,0.5,Neutral,0,0,Bloomberg,0.65
+GOOGL,2026-06-02T20:48:38.746903,GOOGL increases dividend by 9% signaling confidence in growth,1.0,Positive,1,0,WSJ,0.87
+JPM,2026-06-02T20:48:38.746903,JPM releases sustainability report,0.5,Neutral,0,0,Financial Times,0.99
+JNJ,2026-06-02T20:48:38.746903,JNJ updates product roadmap for upcoming year,0.5,Neutral,0,0,Financial Times,0.97
+XOM,2026-06-02T20:48:38.746903,XOM updates investor relations information,0.5,Neutral,0,0,Financial Times,0.95
+AMZN,2026-06-02T20:48:38.746903,AMZN maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,0.95
+NVDA,2026-06-02T20:48:38.746903,Analysts downgrade NVDA citing market challenges,0.0,Negative,0,3,MarketWatch,0.86
+PFE,2026-06-02T20:48:38.746903,PFE beats Q2 earnings expectations with 44% revenue growth,1.0,Positive,2,0,Bloomberg,0.84
+WMT,2026-06-02T20:48:38.746903,WMT maintains market position in steady trading,0.5,Neutral,0,0,Bloomberg,0.66
+AAPL,2026-06-01T20:48:38.746903,AAPL stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,MarketWatch,0.63
+MSFT,2026-06-01T20:48:38.746903,MSFT beats Q4 earnings expectations with 22% revenue growth,1.0,Positive,2,0,Reuters,0.95
+GOOGL,2026-06-01T20:48:38.746903,GOOGL updates product roadmap for upcoming year,0.5,Neutral,0,0,Reuters,0.68
+JPM,2026-06-01T20:48:38.746903,JPM updates product roadmap for upcoming year,0.5,Neutral,0,0,Financial Times,0.8
+JNJ,2026-06-01T20:48:38.746903,JNJ expands into emerging market in strategic move,0.5,Neutral,0,0,Reuters,0.63
+XOM,2026-06-01T20:48:38.746903,XOM increases dividend by 9% signaling confidence in growth,1.0,Positive,1,0,Reuters,0.66
+AMZN,2026-06-01T20:48:38.746903,AMZN wins industry recognition award,0.5,Neutral,0,0,Bloomberg,0.71
+NVDA,2026-06-01T20:48:38.746903,NVDA updates product roadmap for upcoming year,0.5,Neutral,0,0,Reuters,0.61
+PFE,2026-06-01T20:48:38.746903,Analysts upgrade PFE rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.84
+WMT,2026-06-01T20:48:38.746903,WMT reports declining margins amid rising costs,0.5,Neutral,0,0,Bloomberg,0.98
+AAPL,2026-05-31T20:48:38.746903,AAPL faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Reuters,0.66
+MSFT,2026-05-31T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,Bloomberg,0.76
+GOOGL,2026-05-31T20:48:38.746903,GOOGL announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.67
+JPM,2026-05-31T20:48:38.746903,JPM announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.85
+JNJ,2026-05-31T20:48:38.746903,JNJ reports declining margins amid rising costs,0.5,Neutral,0,0,MarketWatch,0.79
+XOM,2026-05-31T20:48:38.746903,"XOM misses earnings expectations, stock falls 19%",0.0,Negative,0,2,Bloomberg,0.96
+AMZN,2026-05-31T20:48:38.746903,"AMZN misses earnings expectations, stock falls 7%",0.0,Negative,0,2,WSJ,0.83
+NVDA,2026-05-31T20:48:38.746903,NVDA stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Bloomberg,0.95
+PFE,2026-05-31T20:48:38.746903,PFE expands R&D team with new hires,0.5,Neutral,0,0,WSJ,0.77
+WMT,2026-05-31T20:48:38.746903,WMT maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,1.0
+AAPL,2026-05-30T20:48:38.746903,AAPL updates investor relations information,0.5,Neutral,0,0,Financial Times,0.74
+MSFT,2026-05-30T20:48:38.746903,MSFT faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Bloomberg,0.84
+GOOGL,2026-05-30T20:48:38.746903,GOOGL expands R&D team with new hires,0.5,Neutral,0,0,Financial Times,0.99
+JPM,2026-05-30T20:48:38.746903,JPM wins industry recognition award,0.5,Neutral,0,0,WSJ,0.66
+JNJ,2026-05-30T20:48:38.746903,JNJ launches innovative new device gaining analyst praise,1.0,Positive,1,0,WSJ,0.72
+XOM,2026-05-30T20:48:38.746903,XOM releases sustainability report,0.5,Neutral,0,0,WSJ,0.96
+AMZN,2026-05-30T20:48:38.746903,AMZN participates in financial conference,0.5,Neutral,0,0,WSJ,0.68
+NVDA,2026-05-30T20:48:38.746903,Analysts downgrade NVDA citing market challenges,0.0,Negative,0,3,Reuters,0.88
+PFE,2026-05-30T20:48:38.746903,PFE expands into emerging market in strategic move,0.5,Neutral,0,0,Bloomberg,0.73
+WMT,2026-05-30T20:48:38.746903,WMT increases dividend by 7% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.71
+AAPL,2026-05-29T20:48:38.746903,AAPL wins industry recognition award,0.5,Neutral,0,0,WSJ,0.68
+MSFT,2026-05-29T20:48:38.746903,MSFT reports declining margins amid rising costs,0.5,Neutral,0,0,WSJ,0.92
+GOOGL,2026-05-29T20:48:38.746903,Legal issues impact GOOGL stock price,0.5,Neutral,0,0,WSJ,0.78
+JPM,2026-05-29T20:48:38.746903,JPM increases dividend by 14% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.76
+JNJ,2026-05-29T20:48:38.746903,JNJ announces quarterly earnings release date,0.5,Neutral,0,0,Financial Times,0.71
+XOM,2026-05-29T20:48:38.746903,Institutional investors increase position in XOM stock,0.5,Neutral,0,0,MarketWatch,0.84
+AMZN,2026-05-29T20:48:38.746903,AMZN announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.62
+NVDA,2026-05-29T20:48:38.746903,NVDA stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Reuters,0.62
+PFE,2026-05-29T20:48:38.746903,Major client drops PFE amid competitive pressures,0.5,Neutral,0,0,Reuters,0.95
+WMT,2026-05-29T20:48:38.746903,WMT launches innovative new device gaining analyst praise,1.0,Positive,1,0,Financial Times,0.68
+AAPL,2026-05-28T20:48:38.746903,AAPL issues guidance cut for next quarter,0.5,Neutral,0,0,Reuters,0.77
+MSFT,2026-05-28T20:48:38.746903,Major client drops MSFT amid competitive pressures,0.5,Neutral,0,0,Reuters,0.98
+GOOGL,2026-05-28T20:48:38.746903,Institutional investors increase position in GOOGL stock,0.5,Neutral,0,0,Bloomberg,0.81
+JPM,2026-05-28T20:48:38.746903,JPM faces supply chain disruptions,0.5,Neutral,0,0,Reuters,0.62
+JNJ,2026-05-28T20:48:38.746903,Institutional investors increase position in JNJ stock,0.5,Neutral,0,0,Reuters,0.95
+XOM,2026-05-28T20:48:38.746903,XOM increases dividend by 20% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.72
+AMZN,2026-05-28T20:48:38.746903,AMZN launches innovative new device gaining analyst praise,1.0,Positive,1,0,Financial Times,0.67
+NVDA,2026-05-28T20:48:38.746903,Analysts upgrade NVDA rating to Buy on strong fundamentals,1.0,Positive,2,0,Reuters,0.84
+PFE,2026-05-28T20:48:38.746903,PFE releases sustainability report,0.5,Neutral,0,0,WSJ,0.68
+WMT,2026-05-28T20:48:38.746903,Legal issues impact WMT stock price,0.5,Neutral,0,0,MarketWatch,0.63
+AAPL,2026-05-27T20:48:38.746903,AAPL updates investor relations information,0.5,Neutral,0,0,Reuters,0.63
+MSFT,2026-05-27T20:48:38.746903,Analysts upgrade MSFT rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.64
+GOOGL,2026-05-27T20:48:38.746903,Analysts downgrade GOOGL citing market challenges,0.0,Negative,0,3,MarketWatch,0.99
+JPM,2026-05-27T20:48:38.746903,Analysts upgrade JPM rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.95
+JNJ,2026-05-27T20:48:38.746903,JNJ beats Q2 earnings expectations with 29% revenue growth,1.0,Positive,2,0,Financial Times,0.87
+XOM,2026-05-27T20:48:38.746903,XOM announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.79
+AMZN,2026-05-27T20:48:38.746903,AMZN stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,WSJ,0.75
+NVDA,2026-05-27T20:48:38.746903,NVDA wins industry recognition award,0.5,Neutral,0,0,WSJ,0.69
+PFE,2026-05-27T20:48:38.746903,Major client drops PFE amid competitive pressures,0.5,Neutral,0,0,MarketWatch,0.9
+WMT,2026-05-27T20:48:38.746903,Analysts downgrade WMT citing market challenges,0.0,Negative,0,3,MarketWatch,0.92
+AAPL,2026-05-26T20:48:38.746903,AAPL participates in financial conference,0.5,Neutral,0,0,Financial Times,0.85
+MSFT,2026-05-26T20:48:38.746903,MSFT announces quarterly earnings release date,0.5,Neutral,0,0,Reuters,0.77
+GOOGL,2026-05-26T20:48:38.746903,GOOGL maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,0.96
+JPM,2026-05-26T20:48:38.746903,JPM releases sustainability report,0.5,Neutral,0,0,WSJ,0.93
+JNJ,2026-05-26T20:48:38.746903,JNJ participates in financial conference,0.5,Neutral,0,0,Reuters,0.89
+XOM,2026-05-26T20:48:38.746903,XOM expands into emerging market in strategic move,0.5,Neutral,0,0,MarketWatch,0.9
+AMZN,2026-05-26T20:48:38.746903,AMZN releases sustainability report,0.5,Neutral,0,0,Bloomberg,0.91
+NVDA,2026-05-26T20:48:38.746903,NVDA expands R&D team with new hires,0.5,Neutral,0,0,Reuters,0.93
+PFE,2026-05-26T20:48:38.746903,Major client drops PFE amid competitive pressures,0.5,Neutral,0,0,Bloomberg,0.81
+WMT,2026-05-26T20:48:38.746903,Major client drops WMT amid competitive pressures,0.5,Neutral,0,0,Reuters,0.76
+AAPL,2026-05-25T20:48:38.746903,AAPL announces major partnership with industry leader,0.5,Neutral,0,0,Reuters,0.64
+MSFT,2026-05-25T20:48:38.746903,MSFT updates product roadmap for upcoming year,0.5,Neutral,0,0,WSJ,0.78
+GOOGL,2026-05-25T20:48:38.746903,GOOGL updates product roadmap for upcoming year,0.5,Neutral,0,0,Financial Times,0.75
+JPM,2026-05-25T20:48:38.746903,JPM wins industry recognition award,0.5,Neutral,0,0,WSJ,0.89
+JNJ,2026-05-25T20:48:38.746903,Analysts upgrade JNJ rating to Buy on strong fundamentals,1.0,Positive,2,0,Bloomberg,0.61
+XOM,2026-05-25T20:48:38.746903,XOM issues guidance cut for next quarter,0.5,Neutral,0,0,Reuters,0.91
+AMZN,2026-05-25T20:48:38.746903,AMZN increases dividend by 20% signaling confidence in growth,1.0,Positive,1,0,Bloomberg,0.9
+NVDA,2026-05-25T20:48:38.746903,Analysts upgrade NVDA rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.79
+PFE,2026-05-25T20:48:38.746903,PFE increases dividend by 21% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.74
+WMT,2026-05-25T20:48:38.746903,WMT beats Q1 earnings expectations with 21% revenue growth,1.0,Positive,2,0,Financial Times,0.83
+AAPL,2026-05-24T20:48:38.746903,Major client drops AAPL amid competitive pressures,0.5,Neutral,0,0,Financial Times,0.62
+MSFT,2026-05-24T20:48:38.746903,MSFT beats Q3 earnings expectations with 16% revenue growth,1.0,Positive,2,0,MarketWatch,0.63
+GOOGL,2026-05-24T20:48:38.746903,GOOGL faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Reuters,0.72
+JPM,2026-05-24T20:48:38.746903,Analysts upgrade JPM rating to Buy on strong fundamentals,1.0,Positive,2,0,Financial Times,0.91
+JNJ,2026-05-24T20:48:38.746903,JNJ issues guidance cut for next quarter,0.5,Neutral,0,0,WSJ,0.95
+XOM,2026-05-24T20:48:38.746903,Analysts upgrade XOM rating to Buy on strong fundamentals,1.0,Positive,2,0,Bloomberg,0.61
+AMZN,2026-05-24T20:48:38.746903,AMZN announces quarterly earnings release date,0.5,Neutral,0,0,Reuters,0.76
+NVDA,2026-05-24T20:48:38.746903,NVDA increases dividend by 24% signaling confidence in growth,1.0,Positive,1,0,WSJ,0.85
+PFE,2026-05-24T20:48:38.746903,PFE issues guidance cut for next quarter,0.5,Neutral,0,0,Reuters,0.64
+WMT,2026-05-24T20:48:38.746903,WMT launches innovative new device gaining analyst praise,1.0,Positive,1,0,WSJ,0.78
+AAPL,2026-05-23T20:48:38.746903,AAPL launches innovative new device gaining analyst praise,1.0,Positive,1,0,Reuters,0.82
+MSFT,2026-05-23T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,MarketWatch,0.66
+GOOGL,2026-05-23T20:48:38.746903,GOOGL updates investor relations information,0.5,Neutral,0,0,Reuters,0.78
+JPM,2026-05-23T20:48:38.746903,Analysts downgrade JPM citing market challenges,0.0,Negative,0,3,Reuters,0.83
+JNJ,2026-05-23T20:48:38.746903,Legal issues impact JNJ stock price,0.5,Neutral,0,0,MarketWatch,0.93
+XOM,2026-05-23T20:48:38.746903,Legal issues impact XOM stock price,0.5,Neutral,0,0,Reuters,0.95
+AMZN,2026-05-23T20:48:38.746903,AMZN increases dividend by 5% signaling confidence in growth,1.0,Positive,1,0,WSJ,0.73
+NVDA,2026-05-23T20:48:38.746903,NVDA announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.81
+PFE,2026-05-23T20:48:38.746903,Analysts downgrade PFE citing market challenges,0.0,Negative,0,3,WSJ,0.97
+WMT,2026-05-23T20:48:38.746903,Institutional investors increase position in WMT stock,0.5,Neutral,0,0,MarketWatch,0.64
+AAPL,2026-05-22T20:48:38.746903,AAPL stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,WSJ,0.78
+MSFT,2026-05-22T20:48:38.746903,MSFT announces quarterly earnings release date,0.5,Neutral,0,0,WSJ,0.78
+GOOGL,2026-05-22T20:48:38.746903,GOOGL increases dividend by 21% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.73
+JPM,2026-05-22T20:48:38.746903,"JPM misses earnings expectations, stock falls 22%",0.0,Negative,0,2,MarketWatch,0.64
+JNJ,2026-05-22T20:48:38.746903,JNJ launches innovative new device gaining analyst praise,1.0,Positive,1,0,MarketWatch,0.6
+XOM,2026-05-22T20:48:38.746903,XOM launches innovative new device gaining analyst praise,1.0,Positive,1,0,Bloomberg,1.0
+AMZN,2026-05-22T20:48:38.746903,AMZN announces quarterly earnings release date,0.5,Neutral,0,0,Bloomberg,0.65
+NVDA,2026-05-22T20:48:38.746903,NVDA announces quarterly earnings release date,0.5,Neutral,0,0,WSJ,0.85
+PFE,2026-05-22T20:48:38.746903,PFE faces supply chain disruptions,0.5,Neutral,0,0,Reuters,0.76
+WMT,2026-05-22T20:48:38.746903,WMT beats Q2 earnings expectations with 39% revenue growth,1.0,Positive,2,0,WSJ,0.65
+AAPL,2026-05-21T20:48:38.746903,AAPL launches innovative new device gaining analyst praise,1.0,Positive,1,0,WSJ,0.69
+MSFT,2026-05-21T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.65
+GOOGL,2026-05-21T20:48:38.746903,GOOGL expands R&D team with new hires,0.5,Neutral,0,0,Financial Times,0.98
+JPM,2026-05-21T20:48:38.746903,JPM participates in financial conference,0.5,Neutral,0,0,MarketWatch,0.72
+JNJ,2026-05-21T20:48:38.746903,JNJ beats Q1 earnings expectations with 43% revenue growth,1.0,Positive,2,0,WSJ,0.89
+XOM,2026-05-21T20:48:38.746903,XOM reports declining margins amid rising costs,0.5,Neutral,0,0,Bloomberg,0.73
+AMZN,2026-05-21T20:48:38.746903,Analysts downgrade AMZN citing market challenges,0.0,Negative,0,3,MarketWatch,0.93
+NVDA,2026-05-21T20:48:38.746903,NVDA releases sustainability report,0.5,Neutral,0,0,Financial Times,0.81
+PFE,2026-05-21T20:48:38.746903,PFE participates in financial conference,0.5,Neutral,0,0,Bloomberg,0.7
+WMT,2026-05-21T20:48:38.746903,WMT issues guidance cut for next quarter,0.5,Neutral,0,0,Financial Times,0.64
+AAPL,2026-05-20T20:48:38.746903,AAPL expands into emerging market in strategic move,0.5,Neutral,0,0,Reuters,0.71
+MSFT,2026-05-20T20:48:38.746903,MSFT stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Reuters,0.73
+GOOGL,2026-05-20T20:48:38.746903,GOOGL releases sustainability report,0.5,Neutral,0,0,Bloomberg,0.74
+JPM,2026-05-20T20:48:38.746903,JPM expands into emerging market in strategic move,0.5,Neutral,0,0,Bloomberg,0.62
+JNJ,2026-05-20T20:48:38.746903,JNJ announces major partnership with industry leader,0.5,Neutral,0,0,Bloomberg,0.65
+XOM,2026-05-20T20:48:38.746903,XOM increases dividend by 24% signaling confidence in growth,1.0,Positive,1,0,Reuters,0.62
+AMZN,2026-05-20T20:48:38.746903,AMZN updates product roadmap for upcoming year,0.5,Neutral,0,0,Reuters,0.96
+NVDA,2026-05-20T20:48:38.746903,NVDA wins industry recognition award,0.5,Neutral,0,0,MarketWatch,0.91
+PFE,2026-05-20T20:48:38.746903,PFE launches innovative new device gaining analyst praise,1.0,Positive,1,0,Reuters,0.74
+WMT,2026-05-20T20:48:38.746903,WMT announces major partnership with industry leader,0.5,Neutral,0,0,Reuters,0.64
+AAPL,2026-05-19T20:48:38.746903,AAPL maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,0.66
+MSFT,2026-05-19T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,MarketWatch,0.67
+GOOGL,2026-05-19T20:48:38.746903,GOOGL faces supply chain disruptions,0.5,Neutral,0,0,WSJ,0.79
+JPM,2026-05-19T20:48:38.746903,Major client drops JPM amid competitive pressures,0.5,Neutral,0,0,MarketWatch,0.79
+JNJ,2026-05-19T20:48:38.746903,"JNJ misses earnings expectations, stock falls 23%",0.0,Negative,0,2,Reuters,0.73
+XOM,2026-05-19T20:48:38.746903,XOM updates product roadmap for upcoming year,0.5,Neutral,0,0,Bloomberg,0.78
+AMZN,2026-05-19T20:48:38.746903,AMZN participates in financial conference,0.5,Neutral,0,0,WSJ,0.97
+NVDA,2026-05-19T20:48:38.746903,NVDA reports declining margins amid rising costs,0.5,Neutral,0,0,Financial Times,0.91
+PFE,2026-05-19T20:48:38.746903,Institutional investors increase position in PFE stock,0.5,Neutral,0,0,MarketWatch,0.66
+WMT,2026-05-19T20:48:38.746903,Institutional investors increase position in WMT stock,0.5,Neutral,0,0,MarketWatch,0.72
+AAPL,2026-05-18T20:48:38.746903,AAPL launches innovative new device gaining analyst praise,1.0,Positive,1,0,Reuters,0.74
+MSFT,2026-05-18T20:48:38.746903,MSFT faces supply chain disruptions,0.5,Neutral,0,0,Reuters,0.65
+GOOGL,2026-05-18T20:48:38.746903,GOOGL announces major partnership with industry leader,0.5,Neutral,0,0,Bloomberg,0.84
+JPM,2026-05-18T20:48:38.746903,JPM issues guidance cut for next quarter,0.5,Neutral,0,0,Bloomberg,0.66
+JNJ,2026-05-18T20:48:38.746903,JNJ faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Financial Times,0.82
+XOM,2026-05-18T20:48:38.746903,XOM faces supply chain disruptions,0.5,Neutral,0,0,MarketWatch,0.91
+AMZN,2026-05-18T20:48:38.746903,AMZN announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.71
+NVDA,2026-05-18T20:48:38.746903,NVDA reports declining margins amid rising costs,0.5,Neutral,0,0,Financial Times,0.93
+PFE,2026-05-18T20:48:38.746903,PFE announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.84
+WMT,2026-05-18T20:48:38.746903,WMT stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Financial Times,0.64
+AAPL,2026-05-17T20:48:38.746903,AAPL releases sustainability report,0.5,Neutral,0,0,Financial Times,0.87
+MSFT,2026-05-17T20:48:38.746903,MSFT announces quarterly earnings release date,0.5,Neutral,0,0,WSJ,0.88
+GOOGL,2026-05-17T20:48:38.746903,Legal issues impact GOOGL stock price,0.5,Neutral,0,0,MarketWatch,0.61
+JPM,2026-05-17T20:48:38.746903,"JPM misses earnings expectations, stock falls 13%",0.0,Negative,0,2,MarketWatch,0.87
+JNJ,2026-05-17T20:48:38.746903,Major client drops JNJ amid competitive pressures,0.5,Neutral,0,0,Bloomberg,0.91
+XOM,2026-05-17T20:48:38.746903,"XOM misses earnings expectations, stock falls 9%",0.0,Negative,0,2,MarketWatch,0.94
+AMZN,2026-05-17T20:48:38.746903,AMZN increases dividend by 10% signaling confidence in growth,1.0,Positive,1,0,WSJ,0.62
+NVDA,2026-05-17T20:48:38.746903,NVDA stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Financial Times,0.7
+PFE,2026-05-17T20:48:38.746903,PFE issues guidance cut for next quarter,0.5,Neutral,0,0,Reuters,0.93
+WMT,2026-05-17T20:48:38.746903,WMT releases sustainability report,0.5,Neutral,0,0,Reuters,0.79
+AAPL,2026-05-16T20:48:38.746903,Institutional investors increase position in AAPL stock,0.5,Neutral,0,0,Reuters,0.91
+MSFT,2026-05-16T20:48:38.746903,MSFT stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,MarketWatch,0.97
+GOOGL,2026-05-16T20:48:38.746903,GOOGL maintains market position in steady trading,0.5,Neutral,0,0,MarketWatch,0.95
+JPM,2026-05-16T20:48:38.746903,JPM beats Q1 earnings expectations with 29% revenue growth,1.0,Positive,2,0,WSJ,0.76
+JNJ,2026-05-16T20:48:38.746903,JNJ increases dividend by 20% signaling confidence in growth,1.0,Positive,1,0,Financial Times,0.86
+XOM,2026-05-16T20:48:38.746903,XOM announces quarterly earnings release date,0.5,Neutral,0,0,Reuters,0.69
+AMZN,2026-05-16T20:48:38.746903,AMZN expands R&D team with new hires,0.5,Neutral,0,0,Reuters,0.9
+NVDA,2026-05-16T20:48:38.746903,Analysts downgrade NVDA citing market challenges,0.0,Negative,0,3,Reuters,0.82
+PFE,2026-05-16T20:48:38.746903,Institutional investors increase position in PFE stock,0.5,Neutral,0,0,Bloomberg,0.65
+WMT,2026-05-16T20:48:38.746903,Institutional investors increase position in WMT stock,0.5,Neutral,0,0,WSJ,0.92
+AAPL,2026-05-15T20:48:38.746903,AAPL updates investor relations information,0.5,Neutral,0,0,Bloomberg,0.86
+MSFT,2026-05-15T20:48:38.746903,Analysts upgrade MSFT rating to Buy on strong fundamentals,1.0,Positive,2,0,Reuters,0.98
+GOOGL,2026-05-15T20:48:38.746903,GOOGL wins industry recognition award,0.5,Neutral,0,0,Bloomberg,0.68
+JPM,2026-05-15T20:48:38.746903,JPM beats Q2 earnings expectations with 18% revenue growth,1.0,Positive,2,0,Bloomberg,0.85
+JNJ,2026-05-15T20:48:38.746903,JNJ announces quarterly earnings release date,0.5,Neutral,0,0,WSJ,0.97
+XOM,2026-05-15T20:48:38.746903,Analysts upgrade XOM rating to Buy on strong fundamentals,1.0,Positive,2,0,Financial Times,0.65
+AMZN,2026-05-15T20:48:38.746903,AMZN faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Bloomberg,0.63
+NVDA,2026-05-15T20:48:38.746903,NVDA announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.76
+PFE,2026-05-15T20:48:38.746903,PFE wins industry recognition award,0.5,Neutral,0,0,Financial Times,0.87
+WMT,2026-05-15T20:48:38.746903,WMT faces supply chain disruptions,0.5,Neutral,0,0,Bloomberg,0.85
+AAPL,2026-05-14T20:48:38.746903,AAPL updates investor relations information,0.5,Neutral,0,0,Financial Times,0.66
+MSFT,2026-05-14T20:48:38.746903,Institutional investors increase position in MSFT stock,0.5,Neutral,0,0,Financial Times,0.65
+GOOGL,2026-05-14T20:48:38.746903,GOOGL updates investor relations information,0.5,Neutral,0,0,WSJ,0.81
+JPM,2026-05-14T20:48:38.746903,JPM faces supply chain disruptions,0.5,Neutral,0,0,MarketWatch,0.65
+JNJ,2026-05-14T20:48:38.746903,JNJ announces quarterly earnings release date,0.5,Neutral,0,0,Financial Times,0.85
+XOM,2026-05-14T20:48:38.746903,XOM updates product roadmap for upcoming year,0.5,Neutral,0,0,WSJ,0.65
+AMZN,2026-05-14T20:48:38.746903,AMZN faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Financial Times,0.77
+NVDA,2026-05-14T20:48:38.746903,"NVDA misses earnings expectations, stock falls 7%",0.0,Negative,0,2,Bloomberg,1.0
+PFE,2026-05-14T20:48:38.746903,PFE faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,MarketWatch,0.85
+WMT,2026-05-14T20:48:38.746903,Analysts upgrade WMT rating to Buy on strong fundamentals,1.0,Positive,2,0,Financial Times,0.96
+AAPL,2026-05-13T20:48:38.746903,AAPL expands R&D team with new hires,0.5,Neutral,0,0,MarketWatch,0.94
+MSFT,2026-05-13T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,MarketWatch,0.62
+GOOGL,2026-05-13T20:48:38.746903,GOOGL reports declining margins amid rising costs,0.5,Neutral,0,0,Reuters,0.95
+JPM,2026-05-13T20:48:38.746903,JPM updates investor relations information,0.5,Neutral,0,0,WSJ,0.94
+JNJ,2026-05-13T20:48:38.746903,JNJ maintains market position in steady trading,0.5,Neutral,0,0,Financial Times,0.63
+XOM,2026-05-13T20:48:38.746903,XOM announces quarterly earnings release date,0.5,Neutral,0,0,Reuters,0.97
+AMZN,2026-05-13T20:48:38.746903,AMZN launches innovative new device gaining analyst praise,1.0,Positive,1,0,Financial Times,0.72
+NVDA,2026-05-13T20:48:38.746903,NVDA beats Q4 earnings expectations with 43% revenue growth,1.0,Positive,2,0,Bloomberg,0.91
+PFE,2026-05-13T20:48:38.746903,PFE announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.8
+WMT,2026-05-13T20:48:38.746903,WMT launches innovative new device gaining analyst praise,1.0,Positive,1,0,MarketWatch,0.91
+AAPL,2026-05-12T20:48:38.746903,AAPL maintains market position in steady trading,0.5,Neutral,0,0,WSJ,0.75
+MSFT,2026-05-12T20:48:38.746903,Analysts upgrade MSFT rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.76
+GOOGL,2026-05-12T20:48:38.746903,GOOGL beats Q4 earnings expectations with 22% revenue growth,1.0,Positive,2,0,Reuters,0.85
+JPM,2026-05-12T20:48:38.746903,Analysts downgrade JPM citing market challenges,0.0,Negative,0,3,MarketWatch,0.95
+JNJ,2026-05-12T20:48:38.746903,JNJ updates product roadmap for upcoming year,0.5,Neutral,0,0,Financial Times,0.65
+XOM,2026-05-12T20:48:38.746903,XOM launches innovative new device gaining analyst praise,1.0,Positive,1,0,MarketWatch,0.78
+AMZN,2026-05-12T20:48:38.746903,AMZN announces major partnership with industry leader,0.5,Neutral,0,0,MarketWatch,0.66
+NVDA,2026-05-12T20:48:38.746903,NVDA updates investor relations information,0.5,Neutral,0,0,WSJ,0.85
+PFE,2026-05-12T20:48:38.746903,PFE faces supply chain disruptions,0.5,Neutral,0,0,Financial Times,0.82
+WMT,2026-05-12T20:48:38.746903,Analysts upgrade WMT rating to Buy on strong fundamentals,1.0,Positive,2,0,MarketWatch,0.84
+AAPL,2026-05-11T20:48:38.746903,AAPL expands into emerging market in strategic move,0.5,Neutral,0,0,MarketWatch,0.83
+MSFT,2026-05-11T20:48:38.746903,MSFT announces major partnership with industry leader,0.5,Neutral,0,0,WSJ,0.64
+GOOGL,2026-05-11T20:48:38.746903,GOOGL stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Financial Times,0.85
+JPM,2026-05-11T20:48:38.746903,JPM maintains market position in steady trading,0.5,Neutral,0,0,Bloomberg,0.61
+JNJ,2026-05-11T20:48:38.746903,JNJ releases sustainability report,0.5,Neutral,0,0,MarketWatch,0.81
+XOM,2026-05-11T20:48:38.746903,XOM reports declining margins amid rising costs,0.5,Neutral,0,0,Bloomberg,0.65
+AMZN,2026-05-11T20:48:38.746903,AMZN updates product roadmap for upcoming year,0.5,Neutral,0,0,Financial Times,0.83
+NVDA,2026-05-11T20:48:38.746903,NVDA updates product roadmap for upcoming year,0.5,Neutral,0,0,WSJ,0.85
+PFE,2026-05-11T20:48:38.746903,PFE releases sustainability report,0.5,Neutral,0,0,Financial Times,0.95
+WMT,2026-05-11T20:48:38.746903,WMT announces quarterly earnings release date,0.5,Neutral,0,0,MarketWatch,0.68
+AAPL,2026-05-10T20:48:38.746903,AAPL beats Q4 earnings expectations with 35% revenue growth,1.0,Positive,2,0,Reuters,0.7
+MSFT,2026-05-10T20:48:38.746903,Major client drops MSFT amid competitive pressures,0.5,Neutral,0,0,Bloomberg,0.78
+GOOGL,2026-05-10T20:48:38.746903,GOOGL increases dividend by 19% signaling confidence in growth,1.0,Positive,1,0,MarketWatch,0.73
+JPM,2026-05-10T20:48:38.746903,JPM wins industry recognition award,0.5,Neutral,0,0,WSJ,0.97
+JNJ,2026-05-10T20:48:38.746903,JNJ stock reaches new 52-week high amid strong earnings,1.0,Positive,1,0,Reuters,0.88
+XOM,2026-05-10T20:48:38.746903,XOM issues guidance cut for next quarter,0.5,Neutral,0,0,Financial Times,0.77
+AMZN,2026-05-10T20:48:38.746903,AMZN announces major partnership with industry leader,0.5,Neutral,0,0,Financial Times,0.9
+NVDA,2026-05-10T20:48:38.746903,Analysts upgrade NVDA rating to Buy on strong fundamentals,1.0,Positive,2,0,WSJ,0.67
+PFE,2026-05-10T20:48:38.746903,PFE faces regulatory scrutiny in latest investigation,0.5,Neutral,0,0,Reuters,0.92
+WMT,2026-05-10T20:48:38.746903,WMT announces quarterly earnings release date,0.5,Neutral,0,0,Reuters,0.99

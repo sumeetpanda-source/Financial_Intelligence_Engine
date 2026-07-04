@@ -1,0 +1,61 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Generated data. Keep the small reproducible raw universe sources and
+# selected dashboard seed outputs in Git; rebuild larger artifacts in Docker.
+data/processed/
+data/features/
+data/vectors/
+data/cache/
+data/*.xlsx
+data/phase1_agent_result.json
+
+# Model files
+*.h5
+*.pt
+*.pth
+*.pkl
+models/*.json
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+temp/
+tmp/
+*.tmp

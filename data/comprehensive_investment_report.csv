@@ -1,0 +1,11 @@
+Ticker,Company,Sector,Technical Score,Sentiment Score,Fundamental Score,Overall Score,Confidence %,Risk Level,Recommendation
+AAPL,Apple Inc.,Technology,37.48,61.7,70,54.5,23.1,Medium,HOLD
+MSFT,Microsoft Corporation,Technology,18.12,56.7,90,51.26,10.3,Medium,HOLD
+GOOGL,Alphabet Inc.,Communication Services,14.64,55.0,90,49.36,8.1,High,HOLD
+JPM,JPMorgan Chase & Co.,Financial Services,33.55,61.7,90,58.93,20.7,Medium,HOLD
+JNJ,Johnson & Johnson,Healthcare,32.63,58.3,90,57.54,19.0,Medium,HOLD
+XOM,Exxon Mobil Corporation,Energy,7.2,60.0,70,41.88,4.3,High,HOLD
+AMZN,"Amazon.com, Inc.",Consumer Cyclical,16.21,61.7,70,45.99,10.0,High,HOLD
+NVDA,NVIDIA Corporation,Technology,16.91,66.7,70,47.77,11.3,High,HOLD
+PFE,Pfizer Inc.,Healthcare,33.03,63.3,70,53.2,20.9,Medium,HOLD
+WMT,Walmart Inc.,Consumer Defensive,5.4,58.3,70,40.65,3.1,High,HOLD

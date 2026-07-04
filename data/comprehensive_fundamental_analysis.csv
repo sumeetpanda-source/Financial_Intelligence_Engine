@@ -1,0 +1,11 @@
+Ticker,Company,Sector,Industry,market_cap,pe_ratio,peg_ratio,price_to_book,debt_to_equity,current_ratio,roe,roa,profit_margin,dividend_yield,earnings_growth,revenue_growth
+AAPL,Apple Inc.,Technology,Consumer Electronics,4616896905216,38.01,2.47,43.3,79.55,1.07,141.47,26.23,27.15,35.0,0.218,0.166
+MSFT,Microsoft Corporation,Technology,Software - Infrastructure,3063263789056,24.56,1.28,7.39,30.27,1.28,34.01,14.81,39.34,87.0,0.234,0.183
+GOOGL,Alphabet Inc.,Communication Services,Internet Content & Information,4431456239616,27.7,1.45,9.2,20.03,1.92,38.88,14.64,37.92,24.0,0.82,0.218
+JPM,JPMorgan Chase & Co.,Financial Services,Banks - Diversified,838231457792,14.97,1.66,2.44,N/A,N/A,16.47,1.27,33.94,192.0,0.172,0.127
+JNJ,Johnson & Johnson,Healthcare,Drug Manufacturers - General,559304802304,26.89,3.03,6.89,67.73,1.02,26.42,8.42,21.83,230.0,-0.529,0.099
+XOM,Exxon Mobil Corporation,Energy,Oil & Gas Integrated,628954300416,25.55,1.38,2.44,18.26,1.04,9.87,4.22,7.76,275.0,-0.434,0.026
+AMZN,"Amazon.com, Inc.",Consumer Cyclical,Internet Retail,2659372761088,31.82,1.83,6.02,53.3,1.18,24.29,6.84,12.22,N/A,0.748,0.166
+NVDA,NVIDIA Corporation,Technology,Semiconductors,5053394452480,32.0,0.63,32.24,6.55,3.44,114.29,52.73,62.97,49.0,2.145,0.852
+PFE,Pfizer Inc.,Healthcare,Drug Manufacturers - General,147701104640,19.78,13.77,1.64,71.6,1.25,8.31,5.69,11.83,661.0,-0.101,0.054
+WMT,Walmart Inc.,Consumer Defensive,Discount Stores,953298255872,42.18,4.68,9.58,74.82,0.77,24.13,6.83,3.14,83.0,0.194,0.073

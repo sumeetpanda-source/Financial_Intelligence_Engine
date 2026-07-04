@@ -1,0 +1,4 @@
+Ticker,Company,Sector,Latest Price,30-Day High,30-Day Low,Avg Volume,P/E Ratio
+AAPL,Apple Inc.,Technology,$312.06,$315.00,$274.61,"49,062,120",37.733974
+MSFT,Microsoft Corporation,Technology,$450.24,$450.33,$400.01,"34,941,150",26.81596
+GOOGL,Alphabet Inc.,Communication Services,$380.34,$408.61,$378.46,"27,340,890",28.989328

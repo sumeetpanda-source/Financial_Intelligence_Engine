@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: financial-intelligence-engine
+    runtime: docker
+    plan: starter
+    region: singapore
+    autoDeployTrigger: commit
+    healthCheckPath: /health
+    disk:
+      name: fie-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: FIE_ENV
+        value: cloud
+      - key: FIE_HOST
+        value: 0.0.0.0
+      - key: FIE_DATA_ROOT
+        value: /var/data
+      - key: FIE_MODEL_DIR
+        value: /var/data/models
+      - key: FIE_REPORTS_DIR
+        value: /var/data/reports
+      - key: FIE_GENAI_PROVIDER
+        value: local
+      - key: FIE_GENAI_MODEL
+        value: gpt-5.4-mini
