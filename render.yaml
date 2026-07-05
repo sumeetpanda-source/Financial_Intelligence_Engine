@@ -2,14 +2,10 @@ services:
   - type: web
     name: financial-intelligence-engine
     runtime: docker
-    plan: starter
+    plan: free
     region: singapore
     autoDeployTrigger: commit
     healthCheckPath: /health
-    disk:
-      name: fie-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: FIE_ENV
         value: cloud

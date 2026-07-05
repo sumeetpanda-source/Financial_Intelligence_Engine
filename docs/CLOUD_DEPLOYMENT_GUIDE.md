@@ -1,6 +1,6 @@
 # Phase 1 Cloud Deployment Guide
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Selected Platform
 
@@ -11,20 +11,22 @@ Phase 1 uses Render because it supports:
 - Public HTTPS URLs
 - Environment variables and secrets
 - HTTP health checks
-- Persistent disks for ChromaDB, models, and generated data
+- Optional persistent disks for ChromaDB, models, and generated data
 
 Configuration is stored in `render.yaml`.
 
 ## Expected Cost
 
-The supplied Blueprint uses:
+The supplied Blueprint uses Render's Free web-service plan for the Phase 1
+review demo. It does not require payment.
 
-- Starter web service: USD 7 per month
-- 1 GB persistent disk: USD 0.25 per month
+The Free service has an ephemeral filesystem and spins down after inactivity.
+This is acceptable for the review because the Docker image contains seed copies
+of the company universe, feature data, trained models, and ChromaDB index.
+`deploy/start.sh` restores them whenever a new instance starts.
 
-The free service can be used for a temporary experiment, but it has an
-ephemeral filesystem and less memory. It is not the recommended configuration
-for the ChromaDB-backed demonstration.
+For production, change `plan` to `starter` and attach a persistent disk at
+`/var/data`.
 
 ## Files Used
 
@@ -46,7 +48,7 @@ During the Docker build, the application:
 6. Stores the resulting seed assets inside the image.
 
 At first startup, `deploy/start.sh` copies missing seed assets to `/var/data`.
-Later restarts retain files already stored on the persistent disk.
+On the Free plan these files are restored after each restart or cold start.
 
 ## Repository Deployment
 
@@ -56,7 +58,7 @@ After the GitHub repository has been pushed:
 2. Select **New > Blueprint**.
 3. Connect the GitHub account and repository.
 4. Render detects `render.yaml`.
-5. Review the Starter service and 1 GB disk.
+5. Confirm that the service plan is Free and that no disk is listed.
 6. Apply the Blueprint.
 7. Monitor the build logs.
 8. Open the generated `onrender.com` URL.
@@ -98,9 +100,9 @@ OPENAI_API_KEY=<secret value>
 Do not put the key in `render.yaml`, `.env.example`, Git, screenshots, or
 deployment logs.
 
-## Persistence
+## Storage Behavior
 
-The Blueprint mounts the persistent disk at:
+The application maps its writable runtime data to:
 
 ```text
 /var/data
@@ -114,13 +116,19 @@ FIE_MODEL_DIR=/var/data/models
 FIE_REPORTS_DIR=/var/data/reports
 ```
 
-This preserves:
+The Docker image contains bootstrap copies of:
 
 - Processed company universe
 - Feature table
 - ChromaDB files
 - Trained model artifacts
 - Generated reports
+
+On Render Free, runtime changes are ephemeral and are reset after a restart,
+redeploy, or idle spin-down. The packaged bootstrap assets are restored on
+startup, so the Phase 1 read-only demonstration remains functional. Upgrade to
+a paid service with a persistent disk before relying on uploaded documents,
+new vector indexes, or generated reports across restarts.
 
 ## Troubleshooting
 

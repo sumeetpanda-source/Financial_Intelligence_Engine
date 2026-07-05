@@ -713,7 +713,9 @@ Cloud implementation:
 - `/health` and `/api/health` report artifact readiness.
 - Docker builds the 10K universe, features, models, and Chroma index.
 - First startup seeds missing artifacts onto `/var/data`.
-- The Render Blueprint defines a Starter service, Singapore region, health check, and 1 GB persistent disk.
+- The Render Blueprint defines a Free demo service in Singapore with a health check.
+- Bootstrap data, models, and the Chroma index are restored from the Docker image after Free-tier restarts.
+- Production deployment should use a paid service with a persistent disk at `/var/data`.
 
 Detailed instructions:
 
@@ -721,7 +723,7 @@ Detailed instructions:
 docs/CLOUD_DEPLOYMENT_GUIDE.md
 ```
 
-Git push and live deployment remain pending until the repository URL and Render account connection are provided.
+The project is pushed to GitHub. Live deployment remains pending until the Render Blueprint build completes.
 
 ## 17. Change Log
 
@@ -759,3 +761,9 @@ Git push and live deployment remain pending until the repository URL and Render 
 - Added frontend evidence cards, complete agent trace, and confidence values.
 - Moved yfinance caches to a writable project data directory.
 - Expanded the automated suite to 9 passing tests.
+
+### 2026-07-05
+
+- Switched the Render Blueprint to the Free web-service plan for the Phase 1 review.
+- Removed the paid persistent disk from the demo Blueprint.
+- Documented ephemeral storage, cold-start restoration, and the production upgrade path.
