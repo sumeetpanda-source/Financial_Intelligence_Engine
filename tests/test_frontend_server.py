@@ -20,3 +20,8 @@ def test_health_reports_service_and_artifact_checks():
         "forecast_model",
         "vector_store",
     }
+    assert set(health["capabilities"]) == {
+        "real_market_data",
+        "real_market_models",
+        "sec_filings",
+    }

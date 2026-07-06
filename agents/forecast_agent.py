@@ -21,7 +21,10 @@ class ForecastAgent:
 
     def __init__(self):
         self.settings = get_settings()
-        self.feature_path = self.settings.feature_store_dir / "phase1_model_features.csv"
+        self.real_feature_path = (
+            self.settings.feature_store_dir / "real_market_latest_features.csv"
+        )
+        self.proxy_feature_path = self.settings.feature_store_dir / "phase1_model_features.csv"
         self.model_path = self.settings.model_dir / "phase1_forecast_model.pkl"
         self._feature_cache = None
         self._model = None
@@ -36,13 +39,32 @@ class ForecastAgent:
             results[ticker] = model_result or self._fallback_forecast(ticker, horizon_days)
 
         avg_return = float(np.mean([item["expected_return_pct"] for item in results.values()]))
-        source = "trained_phase1_model" if model_loaded else "baseline_signal"
+        real_features = not feature_frame.empty and "data_source" in feature_frame and (
+            feature_frame["data_source"].astype(str) == "yfinance_real"
+        ).any()
+        source = (
+            "real_market_trained_model"
+            if model_loaded and real_features
+            else "trained_phase1_model"
+            if model_loaded
+            else "baseline_signal"
+        )
+        model_confidences = [
+            float(item.get("model_confidence", 0.0))
+            for item in results.values()
+            if "model_confidence" in item
+        ]
+        confidence = (
+            float(np.mean(model_confidences))
+            if model_confidences
+            else 0.62
+        )
         return AgentResult(
             agent_name="Forecast Agent",
             status="success",
             summary=f"Generated {horizon_days}-day forecast signals.",
             data={"tickers": results, "average_expected_return_pct": round(avg_return, 2), "source": source},
-            confidence=0.75 if model_loaded else 0.62,
+            confidence=round(confidence, 3),
             warnings=[] if model_loaded else ["Phase 1 forecast is a baseline signal; train baseline models for model-backed output."],
         )
 
@@ -61,10 +83,15 @@ class ForecastAgent:
     def _load_features(self) -> pd.DataFrame:
         if self._feature_cache is not None:
             return self._feature_cache
-        if not self.feature_path.exists():
+        feature_path = (
+            self.real_feature_path
+            if self.real_feature_path.exists()
+            else self.proxy_feature_path
+        )
+        if not feature_path.exists():
             self._feature_cache = pd.DataFrame()
         else:
-            self._feature_cache = pd.read_csv(self.feature_path)
+            self._feature_cache = pd.read_csv(feature_path)
             self._feature_cache["ticker"] = self._feature_cache["ticker"].astype(str).str.upper()
         return self._feature_cache
 
@@ -79,13 +106,14 @@ class ForecastAgent:
         prediction = self._model.predict(row.head(1))[0]
         probability_map = dict(zip(labels, probabilities[0]))
         confidence = float(max(probability_map.values()))
-        expected_return = float(row.iloc[0].get("future_return_30d", 0) * 100)
-        forecast_volatility = float(row.iloc[0].get("volatility_20", 0) / 100 * np.sqrt(horizon_days))
+        expected_return = float(self._model.expected_return(row.head(1))[0] * 100)
+        annualized_volatility_pct = float(row.iloc[0].get("volatility_20", 0))
+        forecast_volatility_pct = annualized_volatility_pct * np.sqrt(horizon_days / 252)
         return {
             "horizon_days": horizon_days,
             "expected_return_pct": round(expected_return, 2),
             "forecast_direction": prediction,
-            "forecast_volatility_pct": round(forecast_volatility * 100, 2),
+            "forecast_volatility_pct": round(forecast_volatility_pct, 2),
             "model_confidence": round(confidence, 3),
             "model_probabilities": {label: round(float(value), 3) for label, value in probability_map.items()},
         }

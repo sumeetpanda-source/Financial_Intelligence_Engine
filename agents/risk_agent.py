@@ -22,7 +22,10 @@ class RiskAgent:
 
     def __init__(self):
         self.settings = get_settings()
-        self.feature_path = self.settings.feature_store_dir / "phase1_model_features.csv"
+        self.real_feature_path = (
+            self.settings.feature_store_dir / "real_market_latest_features.csv"
+        )
+        self.proxy_feature_path = self.settings.feature_store_dir / "phase1_model_features.csv"
         self.model_path = self.settings.model_dir / "phase1_risk_model.pkl"
         self._feature_cache = None
         self._model = None
@@ -37,13 +40,32 @@ class RiskAgent:
             results[ticker] = model_result or self._fallback_risk(ticker, sentiment_data)
 
         portfolio_risk = float(np.mean([item["risk_score"] for item in results.values()]))
-        source = "trained_phase1_model" if model_loaded else "transparent_proxy"
+        real_features = not feature_frame.empty and "data_source" in feature_frame and (
+            feature_frame["data_source"].astype(str) == "yfinance_real"
+        ).any()
+        source = (
+            "real_market_trained_model"
+            if model_loaded and real_features
+            else "trained_phase1_model"
+            if model_loaded
+            else "transparent_proxy"
+        )
+        model_confidences = [
+            float(item.get("model_confidence", 0.0))
+            for item in results.values()
+            if "model_confidence" in item
+        ]
+        confidence = (
+            float(np.mean(model_confidences))
+            if model_confidences
+            else 0.68
+        )
         return AgentResult(
             agent_name="Risk Agent",
             status="success",
             summary=f"Computed risk profile for {len(results)} companies.",
             data={"tickers": results, "portfolio_risk": round(portfolio_risk, 2), "source": source},
-            confidence=0.78 if model_loaded else 0.68,
+            confidence=round(confidence, 3),
             warnings=[] if model_loaded else ["Phase 1 risk uses transparent proxies until baseline models are trained."],
         )
 
@@ -62,10 +84,15 @@ class RiskAgent:
     def _load_features(self) -> pd.DataFrame:
         if self._feature_cache is not None:
             return self._feature_cache
-        if not self.feature_path.exists():
+        feature_path = (
+            self.real_feature_path
+            if self.real_feature_path.exists()
+            else self.proxy_feature_path
+        )
+        if not feature_path.exists():
             self._feature_cache = pd.DataFrame()
         else:
-            self._feature_cache = pd.read_csv(self.feature_path)
+            self._feature_cache = pd.read_csv(feature_path)
             self._feature_cache["ticker"] = self._feature_cache["ticker"].astype(str).str.upper()
         return self._feature_cache
 

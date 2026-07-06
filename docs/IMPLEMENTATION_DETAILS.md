@@ -201,8 +201,9 @@ Responsibilities:
 
 Current status:
 
-- Explainable risk proxy.
-- TensorFlow/scikit-learn trained risk model planned.
+- Real-market random-forest model for covered tickers.
+- Transparent proxy fallback for tickers without a real feature row.
+- TensorFlow remains a Phase 2 experiment.
 
 ### Forecast Agent
 
@@ -220,8 +221,9 @@ Responsibilities:
 
 Current status:
 
-- Baseline forecast signal.
-- PyTorch LSTM / time-series model planned.
+- Real-market random-forest direction model for covered tickers.
+- Probability-weighted expected return without reading future labels at inference.
+- PyTorch sequence models remain a Phase 2 experiment.
 
 ### Decision Agent
 
@@ -277,7 +279,7 @@ Current RAG is a local vector-database baseline.
 Flow:
 
 ```text
-Local project documents
+Local project documents and official SEC filings
    |
 Document loader
    |
@@ -302,6 +304,7 @@ docs/EXECUTIVE_SUMMARY.md
 docs/DATA_LAYER_EXPANSION.md
 docs/DAY1_SUMMARY.md
 docs/QUICK_START.md
+data/raw/sec_filings/
 ```
 
 Current vector DB:
@@ -347,7 +350,7 @@ Chroma vector candidates
 Current index:
 
 ```text
-516 chunks with source, filename, document type, chunk ID, and PDF page metadata.
+511 chunks with source, filename, document type, chunk ID, and PDF page metadata.
 ```
 
 Implemented RAG files:
@@ -357,8 +360,10 @@ rag_layer/document_loader.py
 rag_layer/embeddings.py
 rag_layer/retriever.py
 rag_layer/rag_system.py
+rag_layer/sec_filings.py
 index_phase1_rag.py
 query_phase1_rag.py
+ingest_sec_filings.py
 ```
 
 Run RAG indexing:
@@ -380,13 +385,20 @@ Local extractive fallback is active by default.
 OpenAI provider is ready when `openai` package and `OPENAI_API_KEY` are configured.
 ```
 
-Planned Phase 1 RAG upgrade:
+Implemented SEC RAG upgrade:
 
-- Parse annual reports / 10-K / 10-Q / earnings transcripts.
-- Add metadata: ticker, company, report type, year, page/source.
-- Add real financial filing/news corpus to ChromaDB.
-- Use Pinecone later for cloud deployment if needed.
-- Return source-cited evidence to the Explainability Agent.
+- Discovers recent 10-K and 10-Q filings through SEC submissions JSON.
+- Downloads official filing HTML from the SEC archive.
+- Converts filings to searchable text.
+- Stores ticker, CIK, form, report date, filing date, accession, and URL metadata.
+- Appends downloaded filings to ChromaDB without resetting the corpus.
+- Requires `FIE_SEC_USER_AGENT` with a contact email for compliant live access.
+
+Remaining Phase 2 retrieval work:
+
+- Large all-company filing/news corpus.
+- Finance-specific transformer embeddings and retrieval benchmarks.
+- Managed pgvector/Pinecone storage when scale requires it.
 
 ## 7. Data Considered
 
@@ -394,7 +406,10 @@ Planned Phase 1 RAG upgrade:
 
 Current implemented data sources:
 
-- Offline/local US equity seed universe
+- 10,000-company Nasdaq/SEC US equity metadata universe
+- Real daily OHLCV and selected fundamentals through yfinance
+- 20-company diversified real-data training cohort
+- Official SEC 10-K/10-Q ingestion path
 - Generated/sample financial news
 - Local project documents for RAG
 - Generated technical, sentiment, and recommendation CSV outputs from demo scripts
@@ -405,21 +420,22 @@ Important files:
 ```text
 data/processed/us_equity_universe.csv
 data/processed/us_equity_universe_summary.json
+data/processed/real_market_history.csv
+data/processed/real_company_fundamentals.csv
+data/features/real_market_training_features.csv
+data/features/real_market_latest_features.csv
 data/phase1_agent_result.json
 reports/phase1_agent_report.md
 ```
 
-### Planned Large Data
+### Current Scale Boundary
 
-Target: large US equities universe, ideally 10K+ tickers.
-
-Planned sources:
-
-- Nasdaq listed securities
-- Other listed securities
-- SEC company tickers
-- Yahoo Finance or paid API for OHLCV and company info
-- Financial Modeling Prep / Polygon / Finnhub if API keys are available
+- Discovery/universe scale: 10,000 US equity records.
+- Real model-training scale: 20 diversified companies.
+- Observed daily rows: 25,480.
+- Point-in-time labeled training rows: 23,880.
+- Expanding real history to all 10,000 symbols is deferred because of provider
+  limits, data quality, storage cost, and survivorship-bias controls.
 
 ## 8. Storage Implementation
 
@@ -541,6 +557,9 @@ The Ask view now displays:
 - Retrieved evidence snippets
 - Filename, document type, page number, and retrieval score citations
 
+The overview now distinguishes the 10K universe, real history rows, real
+training rows, and SEC filing count.
+
 The frontend calls local API endpoints from `frontend/server.py`, including:
 
 - `/api/summary`
@@ -560,24 +579,39 @@ ml_models/price_predictor.py
 ml_models/sentiment_model.py
 ml_models/simple_models.py
 ml_models/phase1_trainer.py
+ml_models/real_market_trainer.py
+data_layer/real_market_data.py
+fetch_real_market_data.py
+train_real_market_models.py
 ```
 
 Current status:
 
-- A 10K-row, 20-column Phase 1 feature table is generated.
-- Risk and forecast classifiers are trained and persisted.
+- A 10K-row proxy table remains available for broad-universe demonstration.
+- A 23,880-row real point-in-time feature table is generated from 25,480 observations.
+- Risk and forecast random-forest classifiers are trained and persisted.
+- The split is chronological: training through 2025-06-20 and testing from 2025-06-23.
+- Forecast labels use observed 20-trading-day forward returns.
+- Risk labels use observed 20-trading-day forward realized volatility.
 - Risk Agent and Forecast Agent load trained models for known ticker rows.
 - Transparent fallbacks remain available when artifacts or rows are missing.
-- Current training features and labels are Phase 1 proxies, not production market outcomes.
+- TensorFlow and PyTorch are intentionally deferred to Phase 2.
 
 Current measured results:
 
 ```text
-Risk accuracy: 0.8005
-Risk macro F1: 0.8039
-Forecast accuracy: 0.6895
-Forecast macro F1: 0.5914
+Risk out-of-time accuracy: 0.6151
+Risk balanced accuracy: 0.5869
+Risk macro F1: 0.5663
+Forecast out-of-time accuracy: 0.3774
+Forecast balanced accuracy: 0.3818
+Forecast macro F1: 0.3726
 ```
+
+The risk model exceeds its majority-class accuracy baseline by 0.0494. The
+forecast model improves balanced accuracy over random by 0.0485 but does not
+beat the majority-class accuracy baseline; it remains an experimental decision
+support signal.
 
 Artifacts:
 
@@ -659,31 +693,31 @@ This deck preserves the previous review slides and appends new progress slides c
 Current limitations:
 
 - The 10K ticker universe is real metadata, but most company-level model features are deterministic proxies.
-- RAG currently uses project documents and research papers, not a broad SEC filing corpus.
+- Real model training covers 20 companies, not the complete 10K universe.
+- SEC ingestion is implemented, but the live corpus requires `FIE_SEC_USER_AGENT`.
 - Local hashing embeddings are the default; finance-specific transformer embeddings remain pending.
 - Hybrid vector, lexical, and metadata reranking is implemented for the Phase 1 corpus.
-- Risk and forecast models are trained, but not yet backtested on point-in-time market outcomes.
+- Models use a strict out-of-time holdout, but walk-forward backtesting and calibration remain pending.
+- The forecast classifier does not yet beat its majority-class accuracy baseline.
 - Sentiment Agent uses generated demo news and keyword scoring.
-- Live Yahoo Finance verification currently fails in the local environment.
+- Live Yahoo Finance history and fundamental ingestion is verified for 20 companies.
 - Authentication, authorization, rate limits, and production monitoring are not implemented.
 
 ## 15. Next Implementation Priorities
 
 Priority 1:
 
-- Add reliable batch ingestion for real OHLCV, fundamentals, and data freshness.
-- Persist failures, retry state, source lineage, and point-in-time timestamps.
+- Configure `FIE_SEC_USER_AGENT`, ingest the live SEC pilot, and evaluate citations.
+- Configure and verify OpenAI in Render.
 
 Priority 2:
 
-- Ingest real 10-K, 10-Q, earnings call, and news documents.
-- Add ticker, document type, year, date, page, and source metadata.
-- Evaluate hybrid retrieval and finance-specific embeddings.
+- Add walk-forward backtesting, probability calibration, and majority-class baselines.
+- Add freshness monitoring and retry state for external data.
 
 Priority 3:
 
-- Retrain and backtest risk and forecast models using real time-stamped outcomes.
-- Add calibration, walk-forward validation, and model drift checks.
+- Evaluate finance-specific embeddings and retrieval quality.
 
 Priority 4:
 
@@ -712,6 +746,8 @@ Cloud implementation:
 - Data and model paths resolve from `AppSettings`.
 - `/health` and `/api/health` report artifact readiness.
 - Docker builds the 10K universe, features, models, and Chroma index.
+- Docker attempts real 20-company training and safely falls back to proxy models.
+- Render startup can append an SEC pilot corpus when `FIE_SEC_USER_AGENT` is configured.
 - First startup seeds missing artifacts onto `/var/data`.
 - The Render Blueprint defines a Free demo service in Singapore with a health check.
 - Bootstrap data, models, and the Chroma index are restored from the Docker image after Free-tier restarts.
@@ -723,7 +759,7 @@ Detailed instructions:
 docs/CLOUD_DEPLOYMENT_GUIDE.md
 ```
 
-The project is pushed to GitHub. Live deployment remains pending until the Render Blueprint build completes.
+The project is pushed to GitHub and the Render Blueprint has been deployed.
 
 ## 17. Change Log
 
@@ -767,3 +803,14 @@ The project is pushed to GitHub. Live deployment remains pending until the Rende
 - Switched the Render Blueprint to the Free web-service plan for the Phase 1 review.
 - Removed the paid persistent disk from the demo Blueprint.
 - Documented ephemeral storage, cold-start restoration, and the production upgrade path.
+
+### 2026-07-06
+
+- Added cached real OHLCV and selected fundamental ingestion through yfinance.
+- Verified 20 companies, 25,480 observations, and 23,880 point-in-time training rows.
+- Added chronological real-market model training with random-forest and NumPy fallback.
+- Removed forecast target leakage and corrected forecast-volatility units.
+- Added official SEC 10-K/10-Q discovery, download, metadata, and Chroma indexing.
+- Added guarded cloud real-data preparation with proxy fallback.
+- Added real-data and SEC capability counters to health and frontend summaries.
+- Expanded the automated suite from 9 to 14 passing tests.

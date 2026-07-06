@@ -48,6 +48,17 @@ def build_health() -> dict:
         "forecast_model": (SETTINGS.model_dir / "phase1_forecast_model.pkl").exists(),
         "vector_store": (SETTINGS.vector_store_dir / "chroma").exists(),
     }
+    capabilities = {
+        "real_market_data": (
+            SETTINGS.processed_data_dir / "real_market_data_summary.json"
+        ).exists(),
+        "real_market_models": (
+            SETTINGS.feature_store_dir / "real_market_latest_features.csv"
+        ).exists(),
+        "sec_filings": (
+            SETTINGS.raw_data_dir / "sec_filings" / "ingestion_manifest.json"
+        ).exists(),
+    }
     return {
         "status": "ok" if all(checks.values()) else "degraded",
         "service": "financial-intelligence-engine",
@@ -55,6 +66,7 @@ def build_health() -> dict:
         "genai_provider": SETTINGS.genai_provider,
         "genai_configured": SETTINGS.genai_provider != "openai" or bool(SETTINGS.openai_api_key),
         "checks": checks,
+        "capabilities": capabilities,
     }
 
 
@@ -62,6 +74,15 @@ def read_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
     return pd.read_csv(path)
+
+
+def read_json(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return {}
 
 
 def records(frame: pd.DataFrame, limit: int | None = None) -> list[dict]:
@@ -96,9 +117,9 @@ def build_summary() -> dict:
     news = read_csv(DATA_DIR / "financial_news_articles.csv")
     features = read_csv(DATA_DIR / "features" / "phase1_model_features.csv")
     model_metrics_path = SETTINGS.model_dir / "phase1_model_metrics.json"
-    model_metrics = {}
-    if model_metrics_path.exists():
-        model_metrics = json.loads(model_metrics_path.read_text(encoding="utf-8"))
+    model_metrics = read_json(model_metrics_path)
+    real_market_summary = read_json(PROCESSED_DIR / "real_market_data_summary.json")
+    sec_manifest = read_json(DATA_DIR / "raw" / "sec_filings" / "ingestion_manifest.json")
 
     top_recommendations = recommendations
     if not recommendations.empty and "Overall Score" in recommendations.columns:
@@ -121,12 +142,18 @@ def build_summary() -> dict:
     return {
         "universe_count": int(len(universe)),
         "feature_count": int(len(features)),
+        "real_history_count": int(real_market_summary.get("history_rows", 0)),
+        "real_training_count": int(real_market_summary.get("training_rows", 0)),
+        "real_ticker_count": int(real_market_summary.get("ticker_count", 0)),
+        "sec_filing_count": int(sec_manifest.get("downloaded_count", 0)),
         "deep_analysis_count": int(len(recommendations)),
         "news_count": int(len(news)),
         "technical_count": int(len(technical)),
         "environment": SETTINGS.environment,
         "genai_provider": SETTINGS.genai_provider,
         "model_metrics": model_metrics,
+        "real_market_summary": real_market_summary,
+        "sec_ingestion": sec_manifest,
         "recommendation_distribution": recommendation_distribution(recommendations),
         "top_recommendations": records(top_recommendations, 5),
         "sentiment_leaders": records(sentiment_leaders, 5),

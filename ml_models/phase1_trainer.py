@@ -66,10 +66,12 @@ class Phase1ModelTrainer:
             "test_rows": int(len(test_frame)),
             "risk_model": {
                 "artifact": str(risk_model_path),
+                "algorithm": risk_model.model.__class__.__name__,
                 **risk_metrics,
             },
             "forecast_model": {
                 "artifact": str(forecast_model_path),
+                "algorithm": forecast_model.model.__class__.__name__,
                 **forecast_metrics,
             },
         }
@@ -86,10 +88,21 @@ class Phase1ModelTrainer:
         y_pred = model.predict(test_frame)
         labels = sorted(y_true.astype(str).unique().tolist())
         report = self._classification_report(y_true.astype(str).tolist(), y_pred, labels)
+        majority_label = y_true.astype(str).value_counts().idxmax()
+        majority_accuracy = float((y_true.astype(str) == majority_label).mean())
+        random_balanced_baseline = 1.0 / len(labels) if labels else 0.0
         return {
             "accuracy": report["accuracy"],
+            "balanced_accuracy": report["balanced_accuracy"],
             "macro_f1": report["macro_f1"],
             "weighted_f1": report["weighted_f1"],
+            "majority_baseline_label": majority_label,
+            "majority_baseline_accuracy": round(majority_accuracy, 4),
+            "accuracy_lift_vs_majority": round(report["accuracy"] - majority_accuracy, 4),
+            "balanced_accuracy_lift_vs_random": round(
+                report["balanced_accuracy"] - random_balanced_baseline,
+                4,
+            ),
             "classification_report": report["by_label"],
         }
 
@@ -99,6 +112,7 @@ class Phase1ModelTrainer:
         correct = sum(1 for true, pred in zip(y_true, y_pred) if true == pred)
         weighted_f1_sum = 0.0
         macro_f1_values = []
+        recall_values = []
 
         for label in labels:
             tp = sum(1 for true, pred in zip(y_true, y_pred) if true == label and pred == label)
@@ -110,6 +124,7 @@ class Phase1ModelTrainer:
             f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
             weighted_f1_sum += f1 * support
             macro_f1_values.append(f1)
+            recall_values.append(recall)
             by_label[label] = {
                 "precision": round(float(precision), 4),
                 "recall": round(float(recall), 4),
@@ -119,6 +134,10 @@ class Phase1ModelTrainer:
 
         return {
             "accuracy": round(float(correct / total if total else 0), 4),
+            "balanced_accuracy": round(
+                float(sum(recall_values) / len(recall_values) if recall_values else 0),
+                4,
+            ),
             "macro_f1": round(float(sum(macro_f1_values) / len(macro_f1_values) if macro_f1_values else 0), 4),
             "weighted_f1": round(float(weighted_f1_sum / total if total else 0), 4),
             "by_label": by_label,

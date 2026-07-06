@@ -13,11 +13,12 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 def default_paths(project_root: Path):
-    return [
+    paths = [
         project_root / "README.md",
         project_root / "docs",
-        project_root / "reports",
+        project_root / "data" / "raw" / "sec_filings",
     ]
+    return [path for path in paths if path.exists()]
 
 
 def main():

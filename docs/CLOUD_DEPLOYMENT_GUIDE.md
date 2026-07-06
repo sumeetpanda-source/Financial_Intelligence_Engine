@@ -1,6 +1,6 @@
 # Phase 1 Cloud Deployment Guide
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## Selected Platform
 
@@ -42,10 +42,12 @@ During the Docker build, the application:
 
 1. Installs the minimal cloud dependencies.
 2. Builds the 10K company universe from cached source files.
-3. Generates the 10K-row Phase 1 feature table.
-4. Trains and saves the risk and forecast classifiers.
-5. Indexes the RAG documents into ChromaDB.
-6. Stores the resulting seed assets inside the image.
+3. Generates the 10K-row proxy feature table.
+4. Attempts to fetch a diversified 20-company real OHLCV/fundamental cohort.
+5. Trains chronological real-market models when live data is available.
+6. Falls back to reproducible proxy models if the external source is unavailable.
+7. Indexes the packaged RAG documents into ChromaDB.
+8. Stores the resulting seed assets inside the image.
 
 At first startup, `deploy/start.sh` copies missing seed assets to `/var/data`.
 On the Free plan these files are restored after each restart or cold start.
@@ -99,6 +101,19 @@ OPENAI_API_KEY=<secret value>
 
 Do not put the key in `render.yaml`, `.env.example`, Git, screenshots, or
 deployment logs.
+
+## SEC Filing Configuration
+
+SEC EDGAR automated access requires an identifiable application and contact
+email. Add this variable in Render:
+
+```text
+FIE_SEC_USER_AGENT=FinancialIntelligenceEngine/1.0 <your-contact-email>
+```
+
+When configured, startup downloads the latest 10-K and 10-Q for AAPL, MSFT, and
+NVDA and appends them to ChromaDB. Failure does not prevent the dashboard from
+starting.
 
 ## Storage Behavior
 

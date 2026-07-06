@@ -3,6 +3,8 @@
 Phase 1 financial research and decision-support application combining:
 
 - A 10,000-company US equity universe
+- Cached real OHLCV and fundamentals for a diversified Phase 1 training cohort
+- SEC 10-K/10-Q ingestion with filing-level source metadata
 - Persistent ChromaDB retrieval-augmented generation (RAG)
 - Baseline risk and 30-day forecast classifiers
 - Retriever, Sentiment, Risk, Forecast, Decision, and Explainability agents
@@ -16,14 +18,17 @@ This project is educational decision support and is not financial advice.
 | Capability | Current result |
 |---|---|
 | US equity universe | 10,000 tickers |
-| ML feature table | 10,000 rows x 20 columns |
-| ChromaDB index | 516 source-aware document chunks |
-| Risk classifier | 80.05% accuracy, 0.8039 macro F1 |
-| Forecast classifier | 68.95% accuracy, 0.5914 macro F1 |
-| Automated tests | 9 passing |
+| Proxy feature table | 10,000 rows x 20 columns |
+| Real market pilot | 20 tickers, 25,480 daily observations |
+| Real training table | 23,880 point-in-time rows |
+| Risk classifier | 61.51% accuracy, 58.69% balanced accuracy |
+| Forecast classifier | 37.74% accuracy, 38.18% balanced accuracy |
+| Automated tests | 14 passing |
 
-The Phase 1 features and labels are deterministic proxy data. Production use
-requires point-in-time market, fundamental, filing, and news datasets.
+The real models use a chronological 80/20 split and labels derived from observed
+forward returns and volatility. They are educational baselines, not trading
+models. The forecast baseline improves balanced accuracy over random but does
+not beat the majority-class accuracy baseline.
 
 ## Local Quick Start
 
@@ -40,6 +45,20 @@ python setup_phase1_storage.py --min-count 10000
 python build_phase1_data.py --min-count 10000
 python train_phase1_models.py
 python index_phase1_rag.py
+```
+
+Build the real-data Phase 1 baseline:
+
+```powershell
+python fetch_real_market_data.py --years 5
+python train_real_market_models.py --years 5
+```
+
+Add official SEC filings to RAG:
+
+```powershell
+$env:FIE_SEC_USER_AGENT="FinancialIntelligenceEngine/1.0 your_email@example.com"
+python ingest_sec_filings.py --tickers AAPL MSFT NVDA --forms 10-K 10-Q
 ```
 
 Run the tests:
@@ -116,8 +135,8 @@ The repository includes:
 - `render.yaml`
 - `.dockerignore`
 
-The Render Blueprint uses a Starter web service in the Singapore region and a
-1 GB persistent disk mounted at `/var/data`.
+The Render Blueprint uses a Free web service in Singapore. Its filesystem is
+ephemeral, so Docker packages reproducible seed artifacts for each restart.
 
 After pushing the repository to GitHub:
 
@@ -137,17 +156,23 @@ FIE_GENAI_MODEL=gpt-5.4-mini
 OPENAI_API_KEY=<cloud secret>
 ```
 
+To add SEC filings during startup, also configure:
+
+```text
+FIE_SEC_USER_AGENT=FinancialIntelligenceEngine/1.0 <contact-email>
+```
+
 Never commit a real API key.
 
 Detailed instructions are in `docs/CLOUD_DEPLOYMENT_GUIDE.md`.
 
 ## Phase 1 Boundaries
 
-- The 10K universe is real ticker metadata, but most model features are proxies.
+- The 10K universe is real ticker metadata. Real model training currently uses
+  a diversified 20-company cohort, while proxy rows preserve broad-universe UI scale.
 - Sentiment news is generated for the deterministic demo.
-- RAG indexes project documents and research papers with page/document metadata
-  and hybrid vector, lexical, and metadata reranking. A broad SEC filing corpus
-  is still pending.
+- RAG supports official SEC 10-K/10-Q ingestion, but a broad all-company filing
+  corpus and formal retrieval evaluation remain Phase 2 work.
 - The local HTTP server is suitable for the Phase 1 demo, not a regulated
   production financial platform.
 - Phase 2 should add real data lineage, backtesting, retrieval evaluation,

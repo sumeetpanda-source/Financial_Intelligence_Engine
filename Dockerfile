@@ -27,7 +27,7 @@ RUN sed -i 's/\r$//' deploy/start.sh \
     && FIE_DATA_ROOT=/app/bootstrap_data \
        FIE_MODEL_DIR=/app/bootstrap_models \
        FIE_REPORTS_DIR=/app/bootstrap_reports \
-       python train_phase1_models.py \
+       python prepare_phase1_cloud.py \
     && FIE_DATA_ROOT=/app/bootstrap_data \
        FIE_MODEL_DIR=/app/bootstrap_models \
        FIE_REPORTS_DIR=/app/bootstrap_reports \

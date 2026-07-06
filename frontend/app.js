@@ -31,6 +31,9 @@ function renderMetrics(summary) {
   const metrics = [
     ["Universe", summary.universe_count, "cached companies"],
     ["Features", summary.feature_count, "ML-ready rows"],
+    ["Real History", summary.real_history_count, "observed daily rows"],
+    ["Real Training", summary.real_training_count, "time-labeled rows"],
+    ["SEC Filings", summary.sec_filing_count, "documents in RAG"],
     ["Deep Analysis", summary.deep_analysis_count, "scored companies"],
     ["News", summary.news_count, "sentiment articles"],
     ["Technicals", summary.technical_count, "indicator rows"],

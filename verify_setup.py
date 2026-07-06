@@ -80,8 +80,11 @@ def check_imports():
         from storage import DataStore
         from data_layer.company_universe import USEquityUniverseBuilder
         from data_layer.phase1_data_pipeline import Phase1DataPipeline
+        from data_layer.real_market_data import RealMarketDataPipeline
         from ml_models.phase1_trainer import Phase1ModelTrainer
+        from ml_models.real_market_trainer import RealMarketModelTrainer
         from rag_layer.rag_system import RAGSystem
+        from rag_layer.sec_filings import SECFilingIngestor
         from genai_layer import build_genai_provider
         print("  ✅ Phase 1 storage, universe, data, model, RAG, and GenAI layers")
     except ImportError as e:
@@ -118,16 +121,22 @@ def check_files():
         'storage/data_store.py',
         'data_layer/company_universe.py',
         'data_layer/phase1_data_pipeline.py',
+        'data_layer/real_market_data.py',
         'ml_models/simple_models.py',
         'ml_models/phase1_trainer.py',
+        'ml_models/real_market_trainer.py',
         'build_phase1_data.py',
+        'fetch_real_market_data.py',
         'train_phase1_models.py',
+        'train_real_market_models.py',
         'index_phase1_rag.py',
+        'ingest_sec_filings.py',
         'query_phase1_rag.py',
         'rag_layer/embeddings.py',
         'rag_layer/document_loader.py',
         'rag_layer/retriever.py',
         'rag_layer/rag_system.py',
+        'rag_layer/sec_filings.py',
         'genai_layer/provider.py',
         'setup_phase1_storage.py',
         '.env.example',

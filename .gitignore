@@ -28,6 +28,8 @@ data/processed/
 data/features/
 data/vectors/
 data/cache/
+data/raw/market/
+data/raw/sec_filings/
 data/*.xlsx
 data/phase1_agent_result.json
 

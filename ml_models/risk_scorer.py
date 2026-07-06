@@ -14,7 +14,7 @@ from typing import Iterable, List
 
 import pandas as pd
 
-from ml_models.simple_models import CentroidClassifier
+from ml_models.simple_models import build_tabular_classifier
 
 
 RISK_FEATURE_COLUMNS = [
@@ -39,8 +39,12 @@ class RiskScorer:
         self.feature_columns = list(feature_columns or RISK_FEATURE_COLUMNS)
 
     def train(self, frame: pd.DataFrame):
-        """Train a dependency-light centroid risk classifier."""
-        self.model = CentroidClassifier().fit(frame, self.feature_columns, "risk_label")
+        """Train a class-balanced risk classifier with a NumPy fallback."""
+        self.model = build_tabular_classifier().fit(
+            frame,
+            self.feature_columns,
+            "risk_label",
+        )
         return self
 
     def predict(self, frame: pd.DataFrame) -> List[str]:

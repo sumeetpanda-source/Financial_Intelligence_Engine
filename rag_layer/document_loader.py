@@ -4,6 +4,7 @@ Document loader for Phase 1 RAG.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Dict, Iterable, List
@@ -53,11 +54,21 @@ class DocumentLoader:
         documents: List[Path] = []
         for item in paths:
             path = Path(item)
-            if path.is_file() and path.suffix.lower() in cls.SUPPORTED_EXTENSIONS:
+            if (
+                path.is_file()
+                and path.suffix.lower() in cls.SUPPORTED_EXTENSIONS
+                and not path.name.endswith(".metadata.json")
+                and path.name != "ingestion_manifest.json"
+            ):
                 documents.append(path)
             elif path.is_dir():
                 for child in path.rglob("*"):
-                    if child.is_file() and child.suffix.lower() in cls.SUPPORTED_EXTENSIONS:
+                    if (
+                        child.is_file()
+                        and child.suffix.lower() in cls.SUPPORTED_EXTENSIONS
+                        and not child.name.endswith(".metadata.json")
+                        and child.name != "ingestion_manifest.json"
+                    ):
                         documents.append(child)
         return sorted(set(documents))
 
@@ -102,6 +113,23 @@ class DocumentLoader:
         year_match = re.search(r"(?<!\d)(20\d{2})(?!\d)", filename)
         if year_match:
             metadata["year"] = int(year_match.group(1))
+        ticker_match = re.match(r"^([A-Z]{1,5})[_-]", filename)
+        if ticker_match:
+            metadata["ticker"] = ticker_match.group(1)
+
+        sidecar = document.with_suffix(document.suffix + ".metadata.json")
+        if sidecar.exists():
+            try:
+                extra = json.loads(sidecar.read_text(encoding="utf-8"))
+                metadata.update(
+                    {
+                        str(key): value
+                        for key, value in extra.items()
+                        if isinstance(value, (str, int, float, bool))
+                    }
+                )
+            except (OSError, ValueError, TypeError):
+                pass
         return metadata
 
     @classmethod

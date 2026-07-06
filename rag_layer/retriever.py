@@ -134,7 +134,15 @@ class VectorRetriever:
             return 0.0
         searchable = " ".join(
             str(metadata.get(field, ""))
-            for field in ("filename", "source", "document_type", "year")
+            for field in (
+                "ticker",
+                "company_name",
+                "filename",
+                "source",
+                "document_type",
+                "filing_date",
+                "year",
+            )
         )
         metadata_tokens = cls._tokens(searchable)
         return len(query_tokens & metadata_tokens) / len(query_tokens)

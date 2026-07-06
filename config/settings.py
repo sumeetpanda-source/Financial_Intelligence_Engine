@@ -27,6 +27,7 @@ class AppSettings:
     genai_provider: str
     genai_model: str
     openai_api_key: str
+    sec_user_agent: str
     market_universe: str
 
     @property
@@ -59,5 +60,6 @@ def get_settings(project_root: Path | None = None) -> AppSettings:
         genai_provider=os.getenv("FIE_GENAI_PROVIDER", "local"),
         genai_model=os.getenv("FIE_GENAI_MODEL", "gpt-5.4-mini"),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+        sec_user_agent=os.getenv("FIE_SEC_USER_AGENT", ""),
         market_universe=os.getenv("FIE_MARKET_UNIVERSE", "us_equities"),
     )
