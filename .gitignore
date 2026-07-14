@@ -60,4 +60,5 @@ Thumbs.db
 # Temporary
 temp/
 tmp/
+outputs/
 *.tmp

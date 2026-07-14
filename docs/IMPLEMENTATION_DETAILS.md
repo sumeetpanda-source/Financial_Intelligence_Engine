@@ -814,3 +814,36 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
 - Added guarded cloud real-data preparation with proxy fallback.
 - Added real-data and SEC capability counters to health and frontend summaries.
 - Expanded the automated suite from 9 to 14 passing tests.
+- Created `Financial_Intelligence_Engine_Phase1_Final_Report.docx`, an 18-page
+  final submission report covering purpose, research foundation, architecture,
+  data, RAG, agents, ML, GenAI, frontend, deployment, testing, limitations,
+  demonstration flow, and the Phase 2 roadmap.
+- Created `Financial_Intelligence_Engine_Phase1_Final_Demo.pptx`.
+- Preserved all 9 second-review slides and appended 6 final-review slides for
+  observed data, chronological ML evaluation, SEC-aware hybrid RAG,
+  multi-agent orchestration, Render deployment, and the live demo sequence.
+- Verified the final 15-slide deck with rendered slide inspection, zero layout
+  errors, template-fidelity checks, and pixel-identical original slides.
+
+### 2026-07-10
+
+- Added `END_SEMESTER_VIVA_PREPARATION_GUIDE.md` for the external examiner
+  review.
+- Documented the 20-minute explanation flow, RAG technique, vector database,
+  embeddings, hybrid retrieval, agent architecture, ML training approach,
+  deployment story, limitations, Phase 2 roadmap, and viva question-answer bank.
+
+### 2026-07-14
+
+- Started Phase 2 stabilization after the Phase 1 ESA demo.
+- Improved `/api/ask` behavior for broad investment questions such as
+  `Where should I invest if I have $5000?`.
+- Replaced hardcoded fallback-only ticker behavior with recommendation-table
+  candidate selection for broad allocation queries.
+- Added budget detection and a budget-aware educational allocation section in
+  the final explainability report.
+- Added response guardrails so the Ask flow avoids overconfident advice,
+  discourages single-stock concentration, and marks Hold-level outputs as
+  watchlist/staged-entry signals.
+- Added regression coverage for broad budget questions in the Phase 1 agent
+  test suite.
