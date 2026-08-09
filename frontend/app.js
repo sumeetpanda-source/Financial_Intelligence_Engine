@@ -181,12 +181,45 @@ function markdownToHtml(markdown) {
     .replace(/\n/g, "<br>");
 }
 
+function money(value) {
+  if (value === null || value === undefined || value === "") return "N/A";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
+function recClass(recommendation) {
+  const rec = text(recommendation).toLowerCase().replace(/\s+/g, "-");
+  if (rec.includes("buy")) return "positive";
+  if (rec.includes("sell")) return "negative";
+  return "neutral";
+}
+
 function renderAskAnswer(payload) {
+  const userAnswer = payload.user_answer || {};
+  const allocations = (userAnswer.allocations || []).map((item) => `
+    <div class="allocation-row">
+      <div>
+        <strong>${text(item.ticker)}</strong>
+        <span>${text(item.reason)}</span>
+      </div>
+      <div>
+        <strong>${money(item.amount)}</strong>
+        <span class="pill ${recClass(item.recommendation)}">${text(item.recommendation)}</span>
+      </div>
+    </div>
+  `).join("");
+
+  const keyPoints = (userAnswer.key_points || []).map((point) => `<li>${text(point)}</li>`).join("");
+  const methodology = (userAnswer.methodology || []).map((point) => `<li>${text(point)}</li>`).join("");
+
   const suggestions = (payload.suggestions || []).map((item) => `
     <div class="suggestion-card">
       <div>
         <strong>${text(item.ticker)}</strong>
-        <span>${text(item.recommendation)}</span>
+        <span class="pill ${recClass(item.recommendation)}">${text(item.recommendation)}</span>
       </div>
       <div class="score">${text(item.investment_score)}</div>
       <small>
@@ -218,16 +251,55 @@ function renderAskAnswer(payload) {
 
   document.getElementById("answerPanel").innerHTML = `
     <div class="answer-block">
-      <span class="badge">${text(payload.tickers?.join(", "))}</span>
-      <h3>Suggestion</h3>
-      <div class="suggestion-grid">${suggestions}</div>
-      <h3>Explanation</h3>
-      <div class="answer-text">${markdownToHtml(payload.answer)}</div>
-      <h3>Agent Signals</h3>
-      <div class="agent-grid">${agents}</div>
-      <h3>Retrieved Evidence</h3>
-      <div class="evidence-grid">${evidence || "<p>No evidence returned.</p>"}</div>
-      <p class="disclaimer">${text(payload.disclaimer)}</p>
+      <section class="decision-hero">
+        <div>
+          <span class="eyebrow">Investment assistant</span>
+          <h3>${text(userAnswer.stance || "Decision support view")}</h3>
+          <p>${text(userAnswer.headline || "The system generated an investment view from the current agent signals.")}</p>
+        </div>
+        <div class="budget-box">
+          <span>Budget</span>
+          <strong>${userAnswer.budget ? money(userAnswer.budget) : "Not provided"}</strong>
+          <span>Reserve: ${userAnswer.reserve_amount !== null && userAnswer.reserve_amount !== undefined ? money(userAnswer.reserve_amount) : "N/A"}</span>
+        </div>
+      </section>
+
+      <section class="answer-section">
+        <h3>Suggested Action</h3>
+        ${allocations ? `
+          <div class="allocation-list">${allocations}</div>
+        ` : `
+          <div class="calm-note">No stock receives an investable allocation from the current signals. Keep the amount in reserve or ask about specific tickers.</div>
+        `}
+      </section>
+
+      <section class="answer-section two-column">
+        <div>
+          <h3>Why This Answer</h3>
+          <ul class="clean-list">${keyPoints}</ul>
+        </div>
+        <div>
+          <h3>How It Was Calculated</h3>
+          <ul class="clean-list">${methodology}</ul>
+        </div>
+      </section>
+
+      <section class="answer-section">
+        <h3>Candidate Scores</h3>
+        <div class="suggestion-grid">${suggestions}</div>
+      </section>
+
+      <details class="technical-details">
+        <summary>View technical trace and retrieved evidence</summary>
+        <h3>Agent Signals</h3>
+        <div class="agent-grid">${agents}</div>
+        <h3>Retrieved Evidence</h3>
+        <div class="evidence-grid">${evidence || "<p>No evidence returned.</p>"}</div>
+        <h3>Raw Grounded Report</h3>
+        <div class="answer-text">${markdownToHtml(payload.answer)}</div>
+      </details>
+
+      <p class="disclaimer">${text(userAnswer.risk_note || payload.disclaimer)}</p>
     </div>
   `;
 }

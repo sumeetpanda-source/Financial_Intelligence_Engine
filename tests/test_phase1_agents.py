@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from agents import OrchestratorAgent
 from agents.explainability_agent import ExplainabilityAgent
+from frontend.server import build_user_friendly_answer
 
 
 class HallucinatingProvider:
@@ -82,3 +83,27 @@ def test_budget_question_bypasses_hallucinating_genai_provider():
     assert result.warnings == [
         "Strict grounded mode used for budget/allocation question to reduce hallucination."
     ]
+
+
+def test_user_friendly_answer_keeps_weak_signals_conservative():
+    answer = build_user_friendly_answer(
+        "If I want to invest $1000, where should I invest?",
+        [
+            {
+                "ticker": "AAPL",
+                "recommendation": "Hold",
+                "investment_score": 50.0,
+                "drivers": {
+                    "sentiment_score": 0.47,
+                    "risk_score": 50,
+                    "expected_return_pct": 0.59,
+                },
+            }
+        ],
+    )
+
+    assert answer["stance"] == "Watchlist / cautious entry"
+    assert answer["budget"] == 1000.0
+    assert answer["reserve_amount"] == 750.0
+    assert answer["allocations"][0]["amount"] == 250.0
+    assert "not personal financial advice" in answer["risk_note"]

@@ -867,3 +867,17 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
 - Added a regression test using a deliberately hallucinating GenAI provider to
   prove `$5000` allocation questions bypass unsupported model claims.
 - Verified the full automated suite with 16 passing tests.
+- Created `Financial_Intelligence_Engine_Phase2_Review1_Mentor_Update.pptx`
+  by preserving the 15-slide Phase 1 final deck and appending 3 Phase 2 Review
+  1 mentor slides.
+- Added `PHASE2_REVIEW1_MENTOR_CONTEXT.md` with the speaking flow, project
+  explanation, hallucination fix details, RAG/ML/agent talking points, Phase 2
+  roadmap, and mentor Q&A.
+- Reworked the Ask frontend into a user-friendly investment assistant view.
+- Added a structured `user_answer` API response with headline, stance, budget,
+  reserve amount, allocation rows, reasoning, methodology, and risk note.
+- Moved raw architecture/report text behind a technical trace section so users
+  see the product answer first and engineering evidence only when needed.
+- Updated the frontend copy, prompt examples, recommendation badges, allocation
+  display, and conservative decision-support language for startup-readiness.
+- Expanded automated coverage to 17 passing tests.

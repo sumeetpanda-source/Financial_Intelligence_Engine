@@ -40,25 +40,25 @@
 
     <section class="view" id="ask">
       <div class="section-head">
-        <h2>Ask About Investments</h2>
-        <span>Multi-agent suggestions from the current Phase 1 system</span>
+        <h2>Investment Assistant</h2>
+        <span>Grounded, model-backed decision support with clear guardrails</span>
       </div>
       <div class="ask-layout">
         <form class="ask-panel" id="askForm">
           <label for="questionInput">Question</label>
-          <textarea id="questionInput" rows="5" placeholder="Should I invest in AAPL and MSFT for the next 30 days?"></textarea>
+          <textarea id="questionInput" rows="5" placeholder="I have $1000. Where should I invest, and why?"></textarea>
           <div class="ask-actions">
             <button class="primary-button" type="submit">Ask</button>
             <span id="askStatus"></span>
           </div>
           <div class="prompt-chips">
-            <button type="button" data-question="Should I invest in AAPL and MSFT for the next 30 days?">AAPL vs MSFT</button>
+            <button type="button" data-question="I have $1000. Where should I invest, and why?">Budget view</button>
+            <button type="button" data-question="Compare AAPL and MSFT for a cautious investor.">AAPL vs MSFT</button>
             <button type="button" data-question="Which looks safer right now, JPM or XOM?">Risk comparison</button>
-            <button type="button" data-question="Give me a balanced suggestion for NVDA, AMZN, and JNJ.">Portfolio view</button>
           </div>
         </form>
         <div class="answer-panel" id="answerPanel">
-          <div class="empty-answer">Ask a question to generate recommendations, risk notes, forecast context, and a short explanation.</div>
+          <div class="empty-answer">Ask a question to get a clear action view, allocation guardrails, model drivers, and supporting evidence.</div>
         </div>
       </div>
     </section>

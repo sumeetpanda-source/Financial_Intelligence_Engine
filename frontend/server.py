@@ -254,6 +254,140 @@ def summarize_evidence(evidence_items) -> list[dict]:
     ]
 
 
+def extract_budget_amount(question: str) -> float | None:
+    patterns = [
+        r"\$\s*([0-9][0-9,]*(?:\.\d+)?)",
+        r"\b([0-9][0-9,]*(?:\.\d+)?)\s*(?:usd|dollars?)\b",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, question, flags=re.IGNORECASE)
+        if not match:
+            continue
+        try:
+            amount = float(match.group(1).replace(",", ""))
+        except ValueError:
+            continue
+        if amount > 0:
+            return amount
+    return None
+
+
+def build_user_friendly_answer(question: str, suggestions: list[dict]) -> dict:
+    budget = extract_budget_amount(question)
+    ranked = sorted(
+        suggestions,
+        key=lambda item: float(item.get("investment_score") or 0),
+        reverse=True,
+    )
+    eligible = [
+        item for item in ranked
+        if item.get("recommendation") not in {"Sell", "Strong Sell"}
+    ]
+    buy_signals = [
+        item for item in eligible
+        if item.get("recommendation") in {"Buy", "Strong Buy"}
+    ]
+    best = eligible[0] if eligible else ranked[0] if ranked else {}
+    has_strong_signal = bool(buy_signals)
+
+    if not ranked:
+        return {
+            "headline": "I could not generate a reliable investment view from the current data.",
+            "stance": "No decision",
+            "budget": budget,
+            "reserve_amount": budget,
+            "allocations": [],
+            "key_points": [
+                "No scored candidates were returned by the agent workflow.",
+                "Try asking with specific tickers such as AAPL, MSFT, JPM, or JNJ.",
+            ],
+            "methodology": [
+                "The system only answers from available model signals and retrieved evidence.",
+            ],
+            "risk_note": "No allocation is suggested without scored candidates.",
+        }
+
+    if has_strong_signal:
+        stance = "Selective buy signal"
+        headline = "The current signals support a diversified, limited allocation."
+        reserve_ratio = 0.20
+    elif eligible:
+        stance = "Watchlist / cautious entry"
+        headline = (
+            "I would not invest the full amount right now. Current signals are mostly Hold-level, "
+            "so treat this as a watchlist or small staged entry."
+        )
+        reserve_ratio = 0.75 if len(eligible) == 1 else 0.60
+    else:
+        stance = "Stay in cash / avoid for now"
+        headline = (
+            "I would avoid investing this amount in the analyzed stocks right now because the "
+            "available signals are Sell-level."
+        )
+        reserve_ratio = 1.0
+
+    allocation_budget = 0.0 if budget is None else budget * (1 - reserve_ratio)
+    if budget is not None and eligible and not has_strong_signal and len(eligible) == 1:
+        allocation_budget = min(allocation_budget, budget * 0.25)
+
+    allocation_candidates = buy_signals or eligible[:3]
+    score_total = sum(
+        max(float(item.get("investment_score") or 0), 1.0)
+        for item in allocation_candidates
+    )
+    allocations = []
+    if budget is not None and allocation_budget > 0 and score_total > 0:
+        for item in allocation_candidates:
+            score = max(float(item.get("investment_score") or 0), 1.0)
+            amount = allocation_budget * score / score_total
+            drivers = item.get("drivers", {})
+            allocations.append(
+                {
+                    "ticker": item.get("ticker"),
+                    "amount": round(amount, 2),
+                    "recommendation": item.get("recommendation"),
+                    "score": item.get("investment_score"),
+                    "reason": (
+                        f"Score {item.get('investment_score')}; "
+                        f"risk {drivers.get('risk_score', 'N/A')}; "
+                        f"expected return {drivers.get('expected_return_pct', 'N/A')}%"
+                    ),
+                }
+            )
+
+    if budget is None:
+        reserve_amount = None
+    else:
+        reserve_amount = round(budget - sum(item["amount"] for item in allocations), 2)
+
+    top_tickers = ", ".join(item.get("ticker", "") for item in ranked[:5])
+    key_points = [
+        f"Analyzed candidates: {top_tickers}.",
+        f"Best current candidate by score: {best.get('ticker', 'N/A')} with {best.get('recommendation', 'N/A')} rating.",
+        "Sell and Strong Sell candidates are excluded from allocation.",
+    ]
+    if not has_strong_signal:
+        key_points.append(
+            "No strong Buy signal is present, so the system keeps a larger reserve instead of forcing a recommendation."
+        )
+
+    return {
+        "headline": headline,
+        "stance": stance,
+        "budget": budget,
+        "reserve_amount": reserve_amount,
+        "allocations": allocations,
+        "key_points": key_points,
+        "methodology": [
+            "Candidate stocks are selected from the current scored company universe.",
+            "Each candidate is evaluated using Sentiment, Risk, and Forecast agents.",
+            "The Decision Agent combines 30% sentiment, 35% lower-risk contribution, and 35% forecast-return contribution.",
+            "Budget allocation is capped when signals are weak to avoid overconfident advice.",
+        ],
+        "risk_note": "Educational decision support only. This is not personal financial advice or a guarantee of returns.",
+    }
+
+
 def ask_investment_question(question: str) -> dict:
     tickers = extract_tickers(question)
     orchestrator = OrchestratorAgent(PROJECT_ROOT)
@@ -265,11 +399,14 @@ def ask_investment_question(question: str) -> dict:
     retrieval = result["agents"]["retriever"]
     explainability = result["agents"]["explainability"]
 
+    suggestions = summarize_decisions(decision.data)
+
     return {
         "question": question,
         "tickers": result["tickers"],
         "answer": result["final_report"],
-        "suggestions": summarize_decisions(decision.data),
+        "user_answer": build_user_friendly_answer(question, suggestions),
+        "suggestions": suggestions,
         "evidence": summarize_evidence(retrieval.evidence),
         "agent_summaries": [
             {"agent": retrieval.agent_name, "summary": retrieval.summary, "confidence": retrieval.confidence},
