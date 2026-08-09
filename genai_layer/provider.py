@@ -50,7 +50,11 @@ class OpenAIGenAIProvider(GenAIProvider):
                         "content": (
                             "You are a financial intelligence report writer. "
                             "Use only the provided agent outputs and evidence. "
-                            "Separate facts from model predictions. Include a disclaimer."
+                            "Separate facts from model predictions. Include a disclaimer. "
+                            "Do not introduce ticker symbols, companies, dollar amounts, "
+                            "financial metrics, or recommendations that are not present in "
+                            "the supplied prompt. Preserve any allocation table and guardrails "
+                            "already provided in the prompt."
                         ),
                     },
                     {"role": "user", "content": prompt},

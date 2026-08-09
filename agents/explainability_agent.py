@@ -39,7 +39,12 @@ class ExplainabilityAgent:
             forecast_data=forecast_data,
             decision_data=decision_data,
         )
-        report = self.genai_provider.generate_report(grounded_report_prompt)
+        strict_grounded_mode = self._is_allocation_query(query) or self._extract_budget(query) is not None
+        report = (
+            grounded_report_prompt
+            if strict_grounded_mode
+            else self.genai_provider.generate_report(grounded_report_prompt)
+        )
 
         return AgentResult(
             agent_name="Explainability Agent",
@@ -48,6 +53,11 @@ class ExplainabilityAgent:
             data={"report_markdown": report},
             evidence=retrieved_evidence,
             confidence=0.76,
+            warnings=(
+                ["Strict grounded mode used for budget/allocation question to reduce hallucination."]
+                if strict_grounded_mode
+                else []
+            ),
         )
 
     def _build_report(
@@ -90,6 +100,18 @@ class ExplainabilityAgent:
             if budget:
                 lines.append(f"- Budget detected from question: ${budget:,.2f}.")
             lines.append("")
+
+            lines.extend(
+                [
+                    "## How The Suggestion Was Calculated",
+                    "- Step 1: The Orchestrator selected candidate tickers from the available recommendation/model data when the user did not provide specific tickers.",
+                    "- Step 2: Sentiment, Risk, and Forecast agents generated one structured signal per ticker.",
+                    "- Step 3: The Decision Agent calculated the investment score using 30% sentiment, 35% lower-risk contribution, and 35% forecast-return contribution.",
+                    "- Step 4: The allocation view ranked candidates by the final score and excluded Sell/Strong Sell candidates from the investable allocation table.",
+                    "- Step 5: If no strong Buy signal exists, the system keeps a larger reserve/watchlist amount instead of recommending aggressive investment.",
+                    "",
+                ]
+            )
 
         lines.append("## Investment Decisions")
 
@@ -202,27 +224,45 @@ class ExplainabilityAgent:
             item for item in ranked
             if item[1].get("recommendation") not in {"Sell", "Strong Sell"}
         ]
-        if not eligible:
-            eligible = ranked[:3]
 
         has_buy_signal = any(
             item[1].get("recommendation") in {"Buy", "Strong Buy"}
             for item in eligible
         )
-        reserve_pct = 0.10 if has_buy_signal else 0.25
+        reserve_pct = 0.10 if has_buy_signal else 0.60
 
         lines = [
             "",
             "## Budget-Aware Educational Allocation View",
         ]
+        if not eligible:
+            lines.extend(
+                [
+                    "- No ticker currently qualifies for the investable allocation table because all analyzed candidates are Sell/Strong Sell.",
+                    "- Conservative interpretation: keep the full budget in reserve/watchlist until stronger signals appear.",
+                    "",
+                    "| Ticker | Recommendation | Score |",
+                    "|---|---:|---:|",
+                ]
+            )
+            for ticker, payload in ranked:
+                lines.append(
+                    f"| {ticker} | {payload.get('recommendation', 'N/A')} | "
+                    f"{payload.get('investment_score', 'N/A')} |"
+                )
+            return lines
+
         if budget:
             investable_budget = budget * (1 - reserve_pct)
+            if len(eligible) == 1 and not has_buy_signal:
+                investable_budget = min(investable_budget, budget * 0.25)
             reserve_amount = budget - investable_budget
+            effective_reserve_pct = reserve_amount / budget
             total_score = sum(max(float(item[1].get("investment_score", 0)), 1.0) for item in eligible)
             lines.extend(
                 [
                     f"- Total amount mentioned: ${budget:,.2f}.",
-                    f"- Suggested reserve/watchlist cash: ${reserve_amount:,.2f} ({reserve_pct:.0%}).",
+                    f"- Suggested reserve/watchlist cash: ${reserve_amount:,.2f} ({effective_reserve_pct:.0%}).",
                     "- Candidate allocation is score-weighted across non-sell candidates.",
                     "",
                     "| Ticker | Recommendation | Score | Approx. allocation | Why |",

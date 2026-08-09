@@ -847,3 +847,23 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
   watchlist/staged-entry signals.
 - Added regression coverage for broad budget questions in the Phase 1 agent
   test suite.
+
+### 2026-08-09
+
+- Hardened the Phase 2 Review 1 Ask flow against hallucinated investment
+  answers.
+- Added strict grounded mode for budget/allocation questions so the
+  Explainability Agent returns the audited agent report instead of allowing
+  GenAI to freely rewrite allocation advice.
+- Added a `How The Suggestion Was Calculated` section explaining candidate
+  selection, Sentiment/Risk/Forecast inputs, Decision Agent weights, sell
+  exclusion, and reserve/watchlist handling.
+- Added conservative concentration control so weak-signal allocation questions
+  keep more budget in reserve instead of placing most of the amount into a
+  single Hold-level stock.
+- Tightened the OpenAI system prompt so it must not introduce tickers,
+  companies, dollar amounts, metrics, or recommendations that are absent from
+  the supplied agent output.
+- Added a regression test using a deliberately hallucinating GenAI provider to
+  prove `$5000` allocation questions bypass unsupported model claims.
+- Verified the full automated suite with 16 passing tests.
