@@ -13,6 +13,7 @@ from genai_layer import build_genai_provider
 from .decision_agent import DecisionAgent
 from .explainability_agent import ExplainabilityAgent
 from .forecast_agent import ForecastAgent
+from .query_intelligence import QueryIntelligence, QueryProfile
 from .retriever_agent import RetrieverAgent
 from .risk_agent import RiskAgent
 from .sentiment_agent import SentimentAgent
@@ -30,6 +31,7 @@ class OrchestratorAgent:
         self.forecast = ForecastAgent()
         self.decision = DecisionAgent()
         self.explainability = ExplainabilityAgent(build_genai_provider(self.settings))
+        self.query_intelligence = QueryIntelligence()
 
     def run(
         self,
@@ -37,13 +39,18 @@ class OrchestratorAgent:
         tickers: Optional[Iterable[str]] = None,
         document_paths: Optional[Iterable[str]] = None,
     ) -> dict:
-        selected_tickers = list(tickers or self._extract_tickers(query) or self._default_tickers(query))
+        query_profile = self.query_intelligence.classify(query)
+        selected_tickers = list(
+            tickers
+            or self._extract_tickers(query)
+            or self._default_tickers(query, query_profile)
+        )
         selected_documents = list(document_paths or self._default_document_paths())
 
         retrieval = self.retriever.run(query=query, document_paths=selected_documents)
         sentiment = self.sentiment.run(selected_tickers, retrieval.evidence)
         risk = self.risk.run(selected_tickers, sentiment.data["tickers"])
-        forecast = self.forecast.run(selected_tickers)
+        forecast = self.forecast.run(selected_tickers, horizon_days=query_profile.horizon_days)
         decision = self.decision.run(
             tickers=selected_tickers,
             sentiment_data=sentiment.data["tickers"],
@@ -62,6 +69,7 @@ class OrchestratorAgent:
 
         return {
             "query": query,
+            "query_profile": query_profile.to_dict(),
             "tickers": selected_tickers,
             "agents": {
                 "retriever": retrieval,
@@ -93,9 +101,10 @@ class OrchestratorAgent:
             tickers.append(candidate)
         return list(dict.fromkeys(tickers))
 
-    def _default_tickers(self, query: str) -> List[str]:
-        if self._is_broad_investment_query(query):
-            ranked = self._ranked_recommendation_tickers()
+    def _default_tickers(self, query: str, query_profile: QueryProfile | None = None) -> List[str]:
+        query_profile = query_profile or self.query_intelligence.classify(query)
+        if query_profile.needs_allocation or self._is_broad_investment_query(query):
+            ranked = self._ranked_recommendation_tickers(query_profile.risk_profile)
             if ranked:
                 return ranked[:5]
         return ["AAPL", "MSFT", "NVDA"]
@@ -131,7 +140,7 @@ class OrchestratorAgent:
                 continue
         return tickers
 
-    def _ranked_recommendation_tickers(self) -> List[str]:
+    def _ranked_recommendation_tickers(self, risk_profile: str = "balanced") -> List[str]:
         path = self.settings.data_root / "comprehensive_investment_report.csv"
         if not path.exists():
             return []
@@ -148,7 +157,12 @@ class OrchestratorAgent:
                     except ValueError:
                         score = 0.0
                     risk = str(row.get("Risk Level", "")).lower()
-                    risk_penalty = 12.0 if risk == "high" else 4.0 if risk == "medium" else 0.0
+                    if risk_profile == "conservative":
+                        risk_penalty = 24.0 if risk == "high" else 7.0 if risk == "medium" else 0.0
+                    elif risk_profile == "aggressive":
+                        risk_penalty = 5.0 if risk == "high" else 1.0 if risk == "medium" else 0.0
+                    else:
+                        risk_penalty = 12.0 if risk == "high" else 4.0 if risk == "medium" else 0.0
                     rows.append((score - risk_penalty, ticker))
         except OSError:
             return []

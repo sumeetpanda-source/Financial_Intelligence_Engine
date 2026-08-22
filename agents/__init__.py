@@ -7,5 +7,6 @@ databases, and hosted GenAI models.
 """
 
 from .orchestrator_agent import OrchestratorAgent
+from .query_intelligence import QueryIntelligence, QueryProfile
 
-__all__ = ["OrchestratorAgent"]
+__all__ = ["OrchestratorAgent", "QueryIntelligence", "QueryProfile"]

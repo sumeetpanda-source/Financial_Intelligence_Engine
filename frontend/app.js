@@ -199,6 +199,8 @@ function recClass(recommendation) {
 
 function renderAskAnswer(payload) {
   const userAnswer = payload.user_answer || {};
+  const queryProfile = payload.query_profile || {};
+  const intentLabel = text(queryProfile.intent || "general_analysis").replace(/_/g, " ");
   const allocations = (userAnswer.allocations || []).map((item) => `
     <div class="allocation-row">
       <div>
@@ -256,6 +258,12 @@ function renderAskAnswer(payload) {
           <span class="eyebrow">Investment assistant</span>
           <h3>${text(userAnswer.stance || "Decision support view")}</h3>
           <p>${text(userAnswer.headline || "The system generated an investment view from the current agent signals.")}</p>
+          <div class="query-tags">
+            <span>${intentLabel}</span>
+            <span>${text(queryProfile.risk_profile || "balanced")} risk</span>
+            <span>${text(queryProfile.horizon_days || 30)}-day horizon</span>
+            <span>${Math.round((queryProfile.confidence || 0) * 100)}% routing confidence</span>
+          </div>
         </div>
         <div class="budget-box">
           <span>Budget</span>

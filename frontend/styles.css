@@ -305,6 +305,24 @@ textarea {
   max-width: 760px;
 }
 
+.query-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.query-tags span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: #42514b;
+  font-size: 12px;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
 .eyebrow {
   display: inline-block;
   color: var(--accent);

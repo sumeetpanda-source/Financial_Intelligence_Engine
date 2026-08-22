@@ -881,3 +881,22 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
 - Updated the frontend copy, prompt examples, recommendation badges, allocation
   display, and conservative decision-support language for startup-readiness.
 - Expanded automated coverage to 17 passing tests.
+
+### 2026-08-22
+
+- Started the next Phase 2 implementation increment: Query Intelligence.
+- Added `agents/query_intelligence.py`, a deterministic classifier that extracts
+  intent, budget, risk preference, investment horizon, allocation need,
+  comparison need, confidence, and routing rationale.
+- Wired Query Intelligence into `OrchestratorAgent` so broad investment
+  questions use profile-aware default ticker selection and explicit forecast
+  horizons.
+- Added conservative/aggressive risk preference handling to budget allocation
+  logic so reserve levels adapt to user intent.
+- Exposed `query_profile` from `/api/ask` and displayed intent, risk profile,
+  horizon, and routing confidence in the frontend Investment Assistant.
+- Added regression tests for query classification, horizon-aware forecasting,
+  and conservative allocation behavior.
+- Verified the full automated suite with 20 passing tests.
+- Added `PHASE2_PPT_PERSONAL_SPEAKER_NOTES.md`, a private slide-wise speaking
+  guide with code references for explaining the 19-slide Phase 2 mentor deck.

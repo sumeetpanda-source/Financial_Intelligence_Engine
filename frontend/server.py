@@ -23,12 +23,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FRONTEND_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from agents import OrchestratorAgent
+from agents import OrchestratorAgent, QueryIntelligence
 from config import get_settings
 
 SETTINGS = get_settings(PROJECT_ROOT)
 DATA_DIR = SETTINGS.data_root
 PROCESSED_DIR = SETTINGS.processed_data_dir
+QUERY_INTELLIGENCE = QueryIntelligence()
 OUTPUT_FILENAMES = {
     "comprehensive_fundamental_analysis.csv",
     "technical_indicators_summary.csv",
@@ -255,25 +256,18 @@ def summarize_evidence(evidence_items) -> list[dict]:
 
 
 def extract_budget_amount(question: str) -> float | None:
-    patterns = [
-        r"\$\s*([0-9][0-9,]*(?:\.\d+)?)",
-        r"\b([0-9][0-9,]*(?:\.\d+)?)\s*(?:usd|dollars?)\b",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, question, flags=re.IGNORECASE)
-        if not match:
-            continue
-        try:
-            amount = float(match.group(1).replace(",", ""))
-        except ValueError:
-            continue
-        if amount > 0:
-            return amount
-    return None
+    return QUERY_INTELLIGENCE.extract_budget(question)
 
 
-def build_user_friendly_answer(question: str, suggestions: list[dict]) -> dict:
-    budget = extract_budget_amount(question)
+def build_user_friendly_answer(
+    question: str,
+    suggestions: list[dict],
+    query_profile: dict | None = None,
+) -> dict:
+    query_profile = query_profile or QUERY_INTELLIGENCE.classify(question).to_dict()
+    budget = query_profile.get("budget")
+    risk_profile = query_profile.get("risk_profile", "balanced")
+    horizon_days = int(query_profile.get("horizon_days") or 30)
     ranked = sorted(
         suggestions,
         key=lambda item: float(item.get("investment_score") or 0),
@@ -310,14 +304,15 @@ def build_user_friendly_answer(question: str, suggestions: list[dict]) -> dict:
     if has_strong_signal:
         stance = "Selective buy signal"
         headline = "The current signals support a diversified, limited allocation."
-        reserve_ratio = 0.20
+        reserve_ratio = 0.25 if risk_profile == "conservative" else 0.15 if risk_profile == "aggressive" else 0.20
     elif eligible:
         stance = "Watchlist / cautious entry"
         headline = (
             "I would not invest the full amount right now. Current signals are mostly Hold-level, "
             "so treat this as a watchlist or small staged entry."
         )
-        reserve_ratio = 0.75 if len(eligible) == 1 else 0.60
+        base_reserve = 0.75 if len(eligible) == 1 else 0.60
+        reserve_ratio = min(base_reserve + 0.10, 0.90) if risk_profile == "conservative" else max(base_reserve - 0.10, 0.40) if risk_profile == "aggressive" else base_reserve
     else:
         stance = "Stay in cash / avoid for now"
         headline = (
@@ -362,6 +357,8 @@ def build_user_friendly_answer(question: str, suggestions: list[dict]) -> dict:
 
     top_tickers = ", ".join(item.get("ticker", "") for item in ranked[:5])
     key_points = [
+        f"Query classified as {query_profile.get('intent', 'general_analysis').replace('_', ' ')} with {risk_profile} risk preference.",
+        f"Forecast horizon used by the agent workflow: {horizon_days} days.",
         f"Analyzed candidates: {top_tickers}.",
         f"Best current candidate by score: {best.get('ticker', 'N/A')} with {best.get('recommendation', 'N/A')} rating.",
         "Sell and Strong Sell candidates are excluded from allocation.",
@@ -379,6 +376,7 @@ def build_user_friendly_answer(question: str, suggestions: list[dict]) -> dict:
         "allocations": allocations,
         "key_points": key_points,
         "methodology": [
+            "A Phase 2 query classifier detects intent, budget, risk preference, and investment horizon before routing.",
             "Candidate stocks are selected from the current scored company universe.",
             "Each candidate is evaluated using Sentiment, Risk, and Forecast agents.",
             "The Decision Agent combines 30% sentiment, 35% lower-risk contribution, and 35% forecast-return contribution.",
@@ -400,12 +398,14 @@ def ask_investment_question(question: str) -> dict:
     explainability = result["agents"]["explainability"]
 
     suggestions = summarize_decisions(decision.data)
+    query_profile = result.get("query_profile", QUERY_INTELLIGENCE.classify(question).to_dict())
 
     return {
         "question": question,
+        "query_profile": query_profile,
         "tickers": result["tickers"],
         "answer": result["final_report"],
-        "user_answer": build_user_friendly_answer(question, suggestions),
+        "user_answer": build_user_friendly_answer(question, suggestions, query_profile),
         "suggestions": suggestions,
         "evidence": summarize_evidence(retrieval.evidence),
         "agent_summaries": [

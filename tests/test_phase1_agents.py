@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from agents import OrchestratorAgent
 from agents.explainability_agent import ExplainabilityAgent
+from agents.query_intelligence import QueryIntelligence
 from frontend.server import build_user_friendly_answer
 
 
@@ -107,3 +108,55 @@ def test_user_friendly_answer_keeps_weak_signals_conservative():
     assert answer["reserve_amount"] == 750.0
     assert answer["allocations"][0]["amount"] == 250.0
     assert "not personal financial advice" in answer["risk_note"]
+
+
+def test_phase2_query_intelligence_extracts_intent_budget_and_horizon():
+    profile = QueryIntelligence().classify(
+        "I am a conservative investor with $2500. Where should I invest for the next 3 months?"
+    )
+
+    assert profile.intent == "budget_allocation"
+    assert profile.budget == 2500.0
+    assert profile.risk_profile == "conservative"
+    assert profile.horizon_days == 90
+    assert profile.needs_allocation is True
+    assert profile.confidence >= 0.85
+
+
+def test_orchestrator_uses_query_profile_for_forecast_horizon():
+    result = OrchestratorAgent().run(
+        "Compare AAPL and MSFT for the next 90 days.",
+        tickers=["AAPL", "MSFT"],
+    )
+
+    assert result["query_profile"]["horizon_days"] == 90
+    for forecast in result["agents"]["forecast"].data["tickers"].values():
+        assert forecast["horizon_days"] == 90
+
+
+def test_user_friendly_answer_uses_conservative_risk_profile():
+    answer = build_user_friendly_answer(
+        "I am conservative and want to invest $1000. Where should I invest?",
+        [
+            {
+                "ticker": "AAPL",
+                "recommendation": "Hold",
+                "investment_score": 50.0,
+                "drivers": {
+                    "sentiment_score": 0.47,
+                    "risk_score": 50,
+                    "expected_return_pct": 0.59,
+                },
+            }
+        ],
+        {
+            "intent": "budget_allocation",
+            "budget": 1000.0,
+            "risk_profile": "conservative",
+            "horizon_days": 30,
+        },
+    )
+
+    assert answer["reserve_amount"] == 850.0
+    assert answer["allocations"][0]["amount"] == 150.0
+    assert "conservative risk preference" in answer["key_points"][0]

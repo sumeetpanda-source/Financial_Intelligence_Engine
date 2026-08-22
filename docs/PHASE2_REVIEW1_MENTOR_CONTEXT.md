@@ -183,7 +183,9 @@ Short-term Phase 2:
 
 - Finish Ask-flow stabilization.
 - Improve grounding and hallucination checks.
-- Add better query classification.
+- Add better query classification. **Implemented next increment:** Query
+  Intelligence now detects intent, budget, risk preference, horizon, allocation
+  need, and comparison need before routing to agents.
 - Improve frontend explanation display.
 
 Core Phase 2:
@@ -227,7 +229,8 @@ No. It is educational decision support. The system includes disclaimers and cons
 
 The first Phase 2 improvement is strict grounded mode for budget/allocation questions, tighter GenAI prompting, budget-aware allocation, and regression tests against hallucinated output.
 
+The next Phase 2 increment adds Query Intelligence. The system now classifies the question before running agents. For example, it can detect a conservative $2500 allocation question for the next 3 months, route the forecast horizon as 90 days, and display the detected intent/risk/horizon in the UI.
+
 ### What will you do next?
 
 Upgrade RAG, improve embeddings, scale SEC/news/fundamental data, improve ML with better features and backtesting, and make deployment more production-ready.
-
