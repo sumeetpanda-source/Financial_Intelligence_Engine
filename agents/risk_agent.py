@@ -5,6 +5,7 @@ Phase 1 calculates transparent risk features. The TensorFlow model can later be
 trained on the same feature contract and used inside this agent.
 """
 
+from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Iterable
 
@@ -28,15 +29,22 @@ class RiskAgent:
         self.proxy_feature_path = self.settings.feature_store_dir / "phase1_model_features.csv"
         self.model_path = self.settings.model_dir / "phase1_risk_model.pkl"
         self._feature_cache = None
+        self._feature_rows: dict[str, pd.DataFrame] = {}
         self._model = None
+        self._prediction_cache: dict[str, Dict] = {}
 
     def run(self, tickers: Iterable[str], sentiment_data: Dict[str, dict]) -> AgentResult:
         results = {}
         model_loaded = self._load_model()
         feature_frame = self._load_features() if model_loaded else pd.DataFrame()
+        model_results = (
+            self._predict_many_with_model(tickers, feature_frame)
+            if model_loaded
+            else {}
+        )
 
         for ticker in tickers:
-            model_result = self._predict_with_model(ticker, feature_frame) if model_loaded else None
+            model_result = model_results.get(ticker.upper()) if model_loaded else None
             results[ticker] = model_result or self._fallback_risk(ticker, sentiment_data)
 
         portfolio_risk = float(np.mean([item["risk_score"] for item in results.values()]))
@@ -97,27 +105,52 @@ class RiskAgent:
         return self._feature_cache
 
     def _predict_with_model(self, ticker: str, feature_frame: pd.DataFrame) -> Dict | None:
-        if feature_frame.empty or self._model is None:
-            return None
-        row = feature_frame[feature_frame["ticker"] == ticker.upper()]
-        if row.empty:
-            return None
+        return self._predict_many_with_model([ticker], feature_frame).get(ticker.upper())
 
-        labels, probabilities = self._model.predict_proba(row.head(1))
-        prediction = self._model.predict(row.head(1))[0]
-        probability_map = dict(zip(labels, probabilities[0]))
-        confidence = float(max(probability_map.values()))
-        risk_score = {"Low": 25.0, "Medium": 50.0, "High": 75.0}.get(prediction, 50.0)
-        row_data = row.iloc[0]
-        return {
-            "risk_score": round(risk_score, 2),
-            "risk_level": prediction,
-            "model_confidence": round(confidence, 3),
-            "volatility_proxy": round(float(row_data.get("volatility_20", 0)), 2),
-            "leverage_proxy": round(float(row_data.get("leverage_proxy", 0)), 2),
-            "sentiment_risk": round(float((1 - row_data.get("sentiment_score", 0.5)) * 100), 2),
-            "model_probabilities": {label: round(float(value), 3) for label, value in probability_map.items()},
-        }
+    def _predict_many_with_model(self, tickers: Iterable[str], feature_frame: pd.DataFrame) -> dict[str, Dict]:
+        if feature_frame.empty or self._model is None:
+            return {}
+
+        results: dict[str, Dict] = {}
+        uncached_tickers = []
+        uncached_rows = []
+        for ticker in dict.fromkeys(ticker.upper() for ticker in tickers):
+            if ticker in self._prediction_cache:
+                results[ticker] = deepcopy(self._prediction_cache[ticker])
+                continue
+            row = self._feature_row(ticker, feature_frame)
+            if row.empty:
+                continue
+            uncached_tickers.append(ticker)
+            uncached_rows.append(row)
+
+        if uncached_rows:
+            batch = pd.concat(uncached_rows, ignore_index=True)
+            labels, probabilities = self._model.predict_proba(batch)
+            predictions = self._model.predict(batch)
+            for index, ticker in enumerate(uncached_tickers):
+                probability_map = dict(zip(labels, probabilities[index]))
+                confidence = float(max(probability_map.values()))
+                prediction = predictions[index]
+                risk_score = {"Low": 25.0, "Medium": 50.0, "High": 75.0}.get(prediction, 50.0)
+                row_data = batch.iloc[index]
+                result = {
+                    "risk_score": round(risk_score, 2),
+                    "risk_level": prediction,
+                    "model_confidence": round(confidence, 3),
+                    "volatility_proxy": round(float(row_data.get("volatility_20", 0)), 2),
+                    "leverage_proxy": round(float(row_data.get("leverage_proxy", 0)), 2),
+                    "sentiment_risk": round(float((1 - row_data.get("sentiment_score", 0.5)) * 100), 2),
+                    "model_probabilities": {label: round(float(value), 3) for label, value in probability_map.items()},
+                }
+                self._prediction_cache[ticker] = result
+                results[ticker] = deepcopy(result)
+        return results
+
+    def _feature_row(self, ticker: str, feature_frame: pd.DataFrame) -> pd.DataFrame:
+        if ticker not in self._feature_rows:
+            self._feature_rows[ticker] = feature_frame[feature_frame["ticker"] == ticker].head(1)
+        return self._feature_rows[ticker]
 
     def _fallback_risk(self, ticker: str, sentiment_data: Dict[str, dict]) -> Dict:
         seed = self._stable_seed(ticker)

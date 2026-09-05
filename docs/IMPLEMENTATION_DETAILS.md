@@ -931,5 +931,16 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
   user budget into one ticker even when only one Buy signal appears.
 - Verified the Ask path improvement from about 8.8 seconds to about 2.0 seconds
   on first run and under 1 second on repeated cached runs in local testing.
-- Expanded focused Ask/agent regression coverage to 8 tests and verified the
-  full suite with 21 passing tests.
+- Batched Risk Agent model inference across all requested tickers instead of
+  predicting one ticker at a time.
+- Batched Forecast Agent model inference across all requested tickers and
+  removed duplicate probability calculations for expected return.
+- Added a short-lived `/api/ask` response cache keyed by question and portfolio
+  context. Repeated demo questions now return instantly with
+  `response_cache_hit=true`.
+- Added background Ask warm-up on server startup through `FIE_PREWARM_ASK=1`
+  so Render can prepare the common review path after a cold start.
+- Verified the refreshed Ask path at about 1.2 seconds for the first local run
+  and instant response for repeated cached questions.
+- Expanded focused Ask/agent regression coverage to 11 tests and verified the
+  full suite with 23 passing tests.

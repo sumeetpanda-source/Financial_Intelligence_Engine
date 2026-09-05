@@ -384,9 +384,13 @@ async function askQuestion(question) {
     const payload = await postJson("/api/ask", { question, portfolio });
     clearInterval(loadingTimer);
     renderAskAnswer(payload);
-    status.textContent = payload.performance?.total_seconds
-      ? `Done in ${payload.performance.total_seconds}s`
-      : "Done";
+    if (payload.performance?.response_cache_hit) {
+      status.textContent = "Done instantly from cache";
+    } else {
+      status.textContent = payload.performance?.total_seconds
+        ? `Done in ${payload.performance.total_seconds}s`
+        : "Done";
+    }
   } catch (error) {
     clearInterval(loadingTimer);
     document.getElementById("answerPanel").innerHTML = `<div class="empty-answer">${text(error.message)}</div>`;

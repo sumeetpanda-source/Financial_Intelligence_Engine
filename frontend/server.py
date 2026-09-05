@@ -12,7 +12,9 @@ import mimetypes
 import os
 import re
 import sys
-from threading import Lock
+import time
+from copy import deepcopy
+from threading import Lock, Thread
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -34,6 +36,8 @@ QUERY_INTELLIGENCE = QueryIntelligence()
 _ORCHESTRATOR: OrchestratorAgent | None = None
 _ORCHESTRATOR_LOCK = Lock()
 _CSV_CACHE: dict[str, tuple[float, pd.DataFrame]] = {}
+_ASK_CACHE: dict[tuple[str, str], tuple[float, dict]] = {}
+ASK_CACHE_TTL_SECONDS = int(os.getenv("FIE_ASK_CACHE_TTL_SECONDS", "300"))
 OUTPUT_FILENAMES = {
     "comprehensive_fundamental_analysis.csv",
     "technical_indicators_summary.csv",
@@ -555,6 +559,14 @@ def build_user_friendly_answer(
 
 
 def ask_investment_question(question: str, portfolio_text: str = "") -> dict:
+    cache_key = (" ".join(question.lower().split()), " ".join(portfolio_text.lower().split()))
+    cached = _ASK_CACHE.get(cache_key)
+    if cached and time.time() - cached[0] <= ASK_CACHE_TTL_SECONDS:
+        payload = deepcopy(cached[1])
+        payload.setdefault("performance", {})["response_cache_hit"] = True
+        payload["performance"]["total_seconds"] = 0.0
+        return payload
+
     tickers = extract_tickers(question)
     orchestrator = get_orchestrator()
     result = orchestrator.run(question, tickers=tickers or None)
@@ -568,7 +580,7 @@ def ask_investment_question(question: str, portfolio_text: str = "") -> dict:
     suggestions = summarize_decisions(decision.data)
     query_profile = result.get("query_profile", QUERY_INTELLIGENCE.classify(question).to_dict())
 
-    return {
+    payload = {
         "question": question,
         "query_profile": query_profile,
         "tickers": result["tickers"],
@@ -592,6 +604,9 @@ def ask_investment_question(question: str, portfolio_text: str = "") -> dict:
         ],
         "disclaimer": "Educational analysis only. This is not financial advice.",
     }
+    payload.setdefault("performance", {})["response_cache_hit"] = False
+    _ASK_CACHE[cache_key] = (time.time(), deepcopy(payload))
+    return payload
 
 
 class DashboardHandler(SimpleHTTPRequestHandler):
@@ -693,11 +708,23 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.wfile.write(body)
 
 
+def warm_ask_cache():
+    try:
+        ask_investment_question(
+            "I am conservative and have $1000. Where should I invest?",
+            "AAPL 5 shares, MSFT $800",
+        )
+    except Exception as exc:
+        print(f"Ask warm-up skipped: {exc}")
+
+
 def main():
     host = os.getenv("FIE_HOST", "127.0.0.1")
     port = int(os.getenv("PORT", "8000"))
     server = ThreadingHTTPServer((host, port), DashboardHandler)
     print(f"Dashboard running at http://{host}:{port}")
+    if os.getenv("FIE_PREWARM_ASK", "1") == "1":
+        Thread(target=warm_ask_cache, daemon=True).start()
     server.serve_forever()
 
 

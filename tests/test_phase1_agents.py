@@ -10,7 +10,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from agents import OrchestratorAgent
 from agents.explainability_agent import ExplainabilityAgent
 from agents.query_intelligence import QueryIntelligence
-from frontend.server import build_user_friendly_answer, parse_portfolio_holdings
+from frontend.server import (
+    ask_investment_question,
+    build_user_friendly_answer,
+    parse_portfolio_holdings,
+)
 
 
 class HallucinatingProvider:
@@ -213,3 +217,15 @@ def test_portfolio_parser_does_not_treat_comparison_question_as_holdings():
     holdings = parse_portfolio_holdings("", "Compare AAPL and MSFT")
 
     assert holdings == []
+
+
+def test_ask_response_cache_serves_repeated_question():
+    question = "I am conservative and have $1234. Where should I invest for review cache test?"
+    portfolio = "AAPL 1 share"
+
+    first = ask_investment_question(question, portfolio)
+    second = ask_investment_question(question, portfolio)
+
+    assert first["performance"]["response_cache_hit"] is False
+    assert second["performance"]["response_cache_hit"] is True
+    assert second["performance"]["total_seconds"] == 0.0
