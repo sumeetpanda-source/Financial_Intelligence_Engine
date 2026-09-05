@@ -12,6 +12,7 @@ import mimetypes
 import os
 import re
 import sys
+from threading import Lock
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -30,6 +31,9 @@ SETTINGS = get_settings(PROJECT_ROOT)
 DATA_DIR = SETTINGS.data_root
 PROCESSED_DIR = SETTINGS.processed_data_dir
 QUERY_INTELLIGENCE = QueryIntelligence()
+_ORCHESTRATOR: OrchestratorAgent | None = None
+_ORCHESTRATOR_LOCK = Lock()
+_CSV_CACHE: dict[str, tuple[float, pd.DataFrame]] = {}
 OUTPUT_FILENAMES = {
     "comprehensive_fundamental_analysis.csv",
     "technical_indicators_summary.csv",
@@ -74,7 +78,23 @@ def build_health() -> dict:
 def read_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
-    return pd.read_csv(path)
+    key = str(path.resolve())
+    modified = path.stat().st_mtime
+    cached = _CSV_CACHE.get(key)
+    if cached and cached[0] == modified:
+        return cached[1].copy()
+    frame = pd.read_csv(path)
+    _CSV_CACHE[key] = (modified, frame)
+    return frame.copy()
+
+
+def get_orchestrator() -> OrchestratorAgent:
+    global _ORCHESTRATOR
+    if _ORCHESTRATOR is None:
+        with _ORCHESTRATOR_LOCK:
+            if _ORCHESTRATOR is None:
+                _ORCHESTRATOR = OrchestratorAgent(PROJECT_ROOT)
+    return _ORCHESTRATOR
 
 
 def read_json(path: Path) -> dict:
@@ -259,6 +279,12 @@ def extract_budget_amount(question: str) -> float | None:
     return QUERY_INTELLIGENCE.extract_budget(question)
 
 
+def format_usd(amount: float | int | None) -> str:
+    if amount is None:
+        return "the provided budget"
+    return f"${float(amount):,.2f}"
+
+
 def build_user_friendly_answer(
     question: str,
     suggestions: list[dict],
@@ -288,15 +314,28 @@ def build_user_friendly_answer(
         return {
             "headline": "I could not generate a reliable investment view from the current data.",
             "stance": "No decision",
+            "primary_action": "No allocation suggested",
+            "allocation_title": "No Investable Plan",
             "budget": budget,
             "reserve_amount": budget,
             "allocations": [],
+            "summary_cards": [
+                {
+                    "label": "Decision",
+                    "value": "Wait",
+                    "detail": "No scored candidates were returned.",
+                }
+            ],
             "key_points": [
                 "No scored candidates were returned by the agent workflow.",
                 "Try asking with specific tickers such as AAPL, MSFT, JPM, or JNJ.",
             ],
             "methodology": [
                 "The system only answers from available model signals and retrieved evidence.",
+            ],
+            "next_steps": [
+                "Ask again with specific ticker symbols or a preferred risk profile.",
+                "Refresh market data before making any real investment decision.",
             ],
             "risk_note": "No allocation is suggested without scored candidates.",
         }
@@ -308,10 +347,10 @@ def build_user_friendly_answer(
     elif eligible:
         stance = "Watchlist / cautious entry"
         headline = (
-            "I would not invest the full amount right now. Current signals are mostly Hold-level, "
-            "so treat this as a watchlist or small staged entry."
+            "Current signals are not strong enough for an aggressive buy. Treat this as a cautious "
+            "watchlist decision, not a full-investment recommendation."
         )
-        base_reserve = 0.75 if len(eligible) == 1 else 0.60
+        base_reserve = 0.75 if len(eligible) == 1 else 0.70
         reserve_ratio = min(base_reserve + 0.10, 0.90) if risk_profile == "conservative" else max(base_reserve - 0.10, 0.40) if risk_profile == "aggressive" else base_reserve
     else:
         stance = "Stay in cash / avoid for now"
@@ -326,6 +365,9 @@ def build_user_friendly_answer(
         allocation_budget = min(allocation_budget, budget * 0.25)
 
     allocation_candidates = buy_signals or eligible[:3]
+    if budget is not None and len(allocation_candidates) == 1:
+        single_stock_cap = 0.25 if risk_profile == "conservative" else 0.50 if risk_profile == "aggressive" else 0.35
+        allocation_budget = min(allocation_budget, budget * single_stock_cap)
     score_total = sum(
         max(float(item.get("investment_score") or 0), 1.0)
         for item in allocation_candidates
@@ -355,12 +397,39 @@ def build_user_friendly_answer(
     else:
         reserve_amount = round(budget - sum(item["amount"] for item in allocations), 2)
 
+    invested_amount = round(sum(item["amount"] for item in allocations), 2)
+    if budget is not None and has_strong_signal:
+        primary_action = (
+            f"Invest up to {format_usd(invested_amount)} across the selected candidates and "
+            f"keep {format_usd(reserve_amount)} as reserve."
+        )
+        allocation_title = "Suggested Allocation"
+    elif budget is not None and eligible:
+        primary_action = (
+            f"Keep {format_usd(reserve_amount)} in reserve. If you still want market exposure, "
+            f"stage only {format_usd(invested_amount)} across the watchlist names below."
+        )
+        allocation_title = "Cautious Watchlist Plan"
+    elif budget is not None:
+        primary_action = f"Keep {format_usd(reserve_amount)} in reserve and avoid the analyzed candidates for now."
+        allocation_title = "Reserve Recommended"
+    else:
+        primary_action = "No budget was provided, so the system is ranking candidates without calculating dollar allocation."
+        allocation_title = "Ranked View"
+
+    if budget is not None and not has_strong_signal and eligible:
+        headline = (
+            f"I would not deploy the full {format_usd(budget)} right now. The current evidence is "
+            "mostly Hold-level, so the safer demo output is a staged watchlist plan."
+        )
+
     top_tickers = ", ".join(item.get("ticker", "") for item in ranked[:5])
+    risk_text = f"{risk_profile} risk preference"
     key_points = [
-        f"Query classified as {query_profile.get('intent', 'general_analysis').replace('_', ' ')} with {risk_profile} risk preference.",
-        f"Forecast horizon used by the agent workflow: {horizon_days} days.",
-        f"Analyzed candidates: {top_tickers}.",
-        f"Best current candidate by score: {best.get('ticker', 'N/A')} with {best.get('recommendation', 'N/A')} rating.",
+        f"Intent detected: {query_profile.get('intent', 'general_analysis').replace('_', ' ')}; risk style: {risk_text}.",
+        f"Forecast horizon used: {horizon_days} days.",
+        f"Candidates reviewed: {top_tickers}.",
+        f"Highest score today: {best.get('ticker', 'N/A')} with a {best.get('recommendation', 'N/A')} signal.",
         "Sell and Strong Sell candidates are excluded from allocation.",
     ]
     if not has_strong_signal:
@@ -371,9 +440,28 @@ def build_user_friendly_answer(
     return {
         "headline": headline,
         "stance": stance,
+        "primary_action": primary_action,
+        "allocation_title": allocation_title,
         "budget": budget,
         "reserve_amount": reserve_amount,
         "allocations": allocations,
+        "summary_cards": [
+            {
+                "label": "Suggested action",
+                "value": "Stage slowly" if eligible and not has_strong_signal else stance,
+                "detail": "Avoid putting the full amount into one stock.",
+            },
+            {
+                "label": "Cash reserve",
+                "value": format_usd(reserve_amount) if budget is not None else "N/A",
+                "detail": "Reserved because current signals are not guaranteed.",
+            },
+            {
+                "label": "Best candidate",
+                "value": best.get("ticker", "N/A"),
+                "detail": f"{best.get('recommendation', 'N/A')} signal, score {best.get('investment_score', 'N/A')}.",
+            },
+        ],
         "key_points": key_points,
         "methodology": [
             "A Phase 2 query classifier detects intent, budget, risk preference, and investment horizon before routing.",
@@ -382,13 +470,18 @@ def build_user_friendly_answer(
             "The Decision Agent combines 30% sentiment, 35% lower-risk contribution, and 35% forecast-return contribution.",
             "Budget allocation is capped when signals are weak to avoid overconfident advice.",
         ],
+        "next_steps": [
+            "Check latest news, earnings, and price movement before placing any real order.",
+            "Use diversification and avoid investing the full amount in a single stock.",
+            "Re-run the question after refreshing market and SEC filing data.",
+        ],
         "risk_note": "Educational decision support only. This is not personal financial advice or a guarantee of returns.",
     }
 
 
 def ask_investment_question(question: str) -> dict:
     tickers = extract_tickers(question)
-    orchestrator = OrchestratorAgent(PROJECT_ROOT)
+    orchestrator = get_orchestrator()
     result = orchestrator.run(question, tickers=tickers or None)
     decision = result["agents"]["decision"]
     forecast = result["agents"]["forecast"]
@@ -408,6 +501,7 @@ def ask_investment_question(question: str) -> dict:
         "user_answer": build_user_friendly_answer(question, suggestions, query_profile),
         "suggestions": suggestions,
         "evidence": summarize_evidence(retrieval.evidence),
+        "performance": result.get("performance", {}),
         "agent_summaries": [
             {"agent": retrieval.agent_name, "summary": retrieval.summary, "confidence": retrieval.confidence},
             {"agent": sentiment.agent_name, "summary": sentiment.summary, "confidence": sentiment.confidence},

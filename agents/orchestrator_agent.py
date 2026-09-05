@@ -4,6 +4,7 @@ Orchestrator Agent for the Phase 1 application.
 
 import re
 import csv
+import time
 from pathlib import Path
 from typing import Iterable, List, Optional
 
@@ -39,38 +40,73 @@ class OrchestratorAgent:
         tickers: Optional[Iterable[str]] = None,
         document_paths: Optional[Iterable[str]] = None,
     ) -> dict:
-        query_profile = self.query_intelligence.classify(query)
-        selected_tickers = list(
-            tickers
-            or self._extract_tickers(query)
-            or self._default_tickers(query, query_profile)
+        total_start = time.perf_counter()
+        timings: dict[str, float] = {}
+
+        def timed(step_name: str, callback):
+            start = time.perf_counter()
+            output = callback()
+            timings[step_name] = round(time.perf_counter() - start, 3)
+            return output
+
+        query_profile = timed("query_intelligence", lambda: self.query_intelligence.classify(query))
+        selected_tickers = timed(
+            "ticker_selection",
+            lambda: list(
+                tickers
+                or self._extract_tickers(query)
+                or self._default_tickers(query, query_profile)
+            ),
         )
         selected_documents = list(document_paths or self._default_document_paths())
 
-        retrieval = self.retriever.run(query=query, document_paths=selected_documents)
-        sentiment = self.sentiment.run(selected_tickers, retrieval.evidence)
-        risk = self.risk.run(selected_tickers, sentiment.data["tickers"])
-        forecast = self.forecast.run(selected_tickers, horizon_days=query_profile.horizon_days)
-        decision = self.decision.run(
-            tickers=selected_tickers,
-            sentiment_data=sentiment.data["tickers"],
-            risk_data=risk.data["tickers"],
-            forecast_data=forecast.data["tickers"],
+        retrieval_top_k = 3 if query_profile.needs_allocation else 5
+        retrieval = timed(
+            "retriever",
+            lambda: self.retriever.run(
+                query=query,
+                document_paths=selected_documents,
+                top_k=retrieval_top_k,
+            ),
         )
-        explanation = self.explainability.run(
-            query=query,
-            tickers=selected_tickers,
-            retrieved_evidence=retrieval.evidence,
-            sentiment_data=sentiment.data["tickers"],
-            risk_data=risk.data["tickers"],
-            forecast_data=forecast.data["tickers"],
-            decision_data=decision.data["tickers"],
+        sentiment = timed("sentiment", lambda: self.sentiment.run(selected_tickers, retrieval.evidence))
+        risk = timed("risk", lambda: self.risk.run(selected_tickers, sentiment.data["tickers"]))
+        forecast = timed(
+            "forecast",
+            lambda: self.forecast.run(selected_tickers, horizon_days=query_profile.horizon_days),
         )
+        decision = timed(
+            "decision",
+            lambda: self.decision.run(
+                tickers=selected_tickers,
+                sentiment_data=sentiment.data["tickers"],
+                risk_data=risk.data["tickers"],
+                forecast_data=forecast.data["tickers"],
+            ),
+        )
+        explanation = timed(
+            "explainability",
+            lambda: self.explainability.run(
+                query=query,
+                tickers=selected_tickers,
+                retrieved_evidence=retrieval.evidence,
+                sentiment_data=sentiment.data["tickers"],
+                risk_data=risk.data["tickers"],
+                forecast_data=forecast.data["tickers"],
+                decision_data=decision.data["tickers"],
+            ),
+        )
+        total_seconds = round(time.perf_counter() - total_start, 3)
 
         return {
             "query": query,
             "query_profile": query_profile.to_dict(),
             "tickers": selected_tickers,
+            "performance": {
+                "total_seconds": total_seconds,
+                "agent_seconds": timings,
+                "retrieval_top_k": retrieval_top_k,
+            },
             "agents": {
                 "retriever": retrieval,
                 "sentiment": sentiment,

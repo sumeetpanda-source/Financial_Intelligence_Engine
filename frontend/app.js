@@ -216,8 +216,21 @@ function renderAskAnswer(payload) {
 
   const keyPoints = (userAnswer.key_points || []).map((point) => `<li>${text(point)}</li>`).join("");
   const methodology = (userAnswer.methodology || []).map((point) => `<li>${text(point)}</li>`).join("");
+  const nextSteps = (userAnswer.next_steps || []).map((point) => `<li>${text(point)}</li>`).join("");
+  const summaryCards = (userAnswer.summary_cards || []).map((card) => `
+    <div class="answer-stat">
+      <span>${text(card.label)}</span>
+      <strong>${text(card.value)}</strong>
+      <small>${text(card.detail)}</small>
+    </div>
+  `).join("");
+  const performance = payload.performance || {};
+  const timings = performance.agent_seconds || {};
+  const timingSummary = Object.entries(timings).map(([name, seconds]) => `
+    <span>${text(name).replace(/_/g, " ")}: ${text(seconds)}s</span>
+  `).join("");
 
-  const suggestions = (payload.suggestions || []).map((item) => `
+  const suggestions = (payload.suggestions || []).slice(0, 5).map((item) => `
     <div class="suggestion-card">
       <div>
         <strong>${text(item.ticker)}</strong>
@@ -240,7 +253,7 @@ function renderAskAnswer(payload) {
     </div>
   `).join("");
 
-  const evidence = (payload.evidence || []).map((item, index) => `
+  const evidence = (payload.evidence || []).slice(0, 3).map((item, index) => `
     <div class="evidence-item">
       <div>
         <strong>[${index + 1}] ${text(item.filename)}</strong>
@@ -258,6 +271,7 @@ function renderAskAnswer(payload) {
           <span class="eyebrow">Investment assistant</span>
           <h3>${text(userAnswer.stance || "Decision support view")}</h3>
           <p>${text(userAnswer.headline || "The system generated an investment view from the current agent signals.")}</p>
+          <div class="primary-action">${text(userAnswer.primary_action || "Review the suggested plan and supporting signals below.")}</div>
           <div class="query-tags">
             <span>${intentLabel}</span>
             <span>${text(queryProfile.risk_profile || "balanced")} risk</span>
@@ -272,8 +286,12 @@ function renderAskAnswer(payload) {
         </div>
       </section>
 
+      <section class="answer-section answer-stats">
+        ${summaryCards}
+      </section>
+
       <section class="answer-section">
-        <h3>Suggested Action</h3>
+        <h3>${text(userAnswer.allocation_title || "Suggested Action")}</h3>
         ${allocations ? `
           <div class="allocation-list">${allocations}</div>
         ` : `
@@ -293,12 +311,22 @@ function renderAskAnswer(payload) {
       </section>
 
       <section class="answer-section">
-        <h3>Candidate Scores</h3>
+        <h3>Next Steps</h3>
+        <ul class="clean-list next-steps">${nextSteps}</ul>
+      </section>
+
+      <section class="answer-section">
+        <h3>Signal Check</h3>
         <div class="suggestion-grid">${suggestions}</div>
       </section>
 
       <details class="technical-details">
-        <summary>View technical trace and retrieved evidence</summary>
+        <summary>Technical trace, timings, and retrieved evidence</summary>
+        <h3>Response Timing</h3>
+        <div class="timing-row">
+          <span>Total: ${text(performance.total_seconds || "N/A")}s</span>
+          ${timingSummary}
+        </div>
         <h3>Agent Signals</h3>
         <div class="agent-grid">${agents}</div>
         <h3>Retrieved Evidence</h3>
@@ -314,14 +342,29 @@ function renderAskAnswer(payload) {
 
 async function askQuestion(question) {
   const status = document.getElementById("askStatus");
-  status.textContent = "Analyzing...";
-  document.getElementById("answerPanel").innerHTML = `<div class="empty-answer">Running the multi-agent workflow.</div>`;
+  const loadingMessages = [
+    "Classifying your question...",
+    "Checking agent signals...",
+    "Retrieving supporting evidence...",
+    "Preparing a grounded answer...",
+  ];
+  let loadingIndex = 0;
+  status.textContent = loadingMessages[loadingIndex];
+  document.getElementById("answerPanel").innerHTML = `<div class="empty-answer">Building a grounded investment view.</div>`;
+  const loadingTimer = setInterval(() => {
+    loadingIndex = (loadingIndex + 1) % loadingMessages.length;
+    status.textContent = loadingMessages[loadingIndex];
+  }, 1200);
 
   try {
     const payload = await postJson("/api/ask", { question });
+    clearInterval(loadingTimer);
     renderAskAnswer(payload);
-    status.textContent = "Done";
+    status.textContent = payload.performance?.total_seconds
+      ? `Done in ${payload.performance.total_seconds}s`
+      : "Done";
   } catch (error) {
+    clearInterval(loadingTimer);
     document.getElementById("answerPanel").innerHTML = `<div class="empty-answer">${text(error.message)}</div>`;
     status.textContent = "Failed";
   }

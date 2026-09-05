@@ -1,6 +1,6 @@
 # Financial Intelligence Engine - Implementation Details
 
-Last updated: 2026-07-04
+Last updated: 2026-09-05
 
 This is the main living document for the project. Every major code or architecture change should be reflected here so the project can be explained during demos, reviews, and future development.
 
@@ -900,3 +900,28 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
 - Verified the full automated suite with 20 passing tests.
 - Added `PHASE2_PPT_PERSONAL_SPEAKER_NOTES.md`, a private slide-wise speaking
   guide with code references for explaining the 19-slide Phase 2 mentor deck.
+
+### 2026-09-05
+
+- Improved `/api/ask` latency for live review demos.
+- Reused one cached `OrchestratorAgent` instance in the frontend server instead
+  of rebuilding agents for every question.
+- Added CSV caching in `frontend/server.py` so repeated dashboard/API calls do
+  not re-read unchanged data files.
+- Reduced ChromaDB reranking candidates from the previous heavy default to a
+  faster configurable pool through `FIE_VECTOR_CANDIDATES`.
+- Cached the Chroma vector retriever, vector count, and fallback local document
+  chunks in `RetrieverAgent`.
+- Added orchestrator-level performance timings for Query Intelligence,
+  Retriever, Sentiment, Risk, Forecast, Decision, and Explainability steps.
+- Exposed `performance` timing data from `/api/ask` and displayed it in the
+  frontend technical trace.
+- Made the Ask answer more product-friendly by showing a primary action,
+  reserve amount, staged allocation plan, summary cards, next steps, and a
+  collapsed technical trace.
+- Added a single-stock allocation cap so the assistant does not put most of a
+  user budget into one ticker even when only one Buy signal appears.
+- Verified the Ask path improvement from about 8.8 seconds to about 2.0 seconds
+  on first run and under 1 second on repeated cached runs in local testing.
+- Expanded focused Ask/agent regression coverage to 8 tests and verified the
+  full suite with 21 passing tests.

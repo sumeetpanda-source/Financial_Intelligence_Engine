@@ -7,6 +7,7 @@ embeddings and FAISS/Chroma/Pinecone.
 """
 
 import os
+import time
 from pathlib import Path
 from typing import Iterable, List, Optional
 
@@ -29,6 +30,9 @@ class RetrieverAgent:
         self.chunk_size = chunk_size
         self.overlap = overlap
         self.retrieval_backend = retrieval_backend or os.getenv("FIE_RETRIEVAL_BACKEND", "hybrid")
+        self._vector_retriever: ChromaVectorRetriever | None = None
+        self._vector_count: int | None = None
+        self._chunk_cache: dict[tuple[str, ...], list[dict]] = {}
 
     def run(
         self,
@@ -82,9 +86,11 @@ class RetrieverAgent:
 
     def _retrieve_from_vector_db(self, query: str, top_k: int) -> AgentResult | None:
         try:
-            retriever = ChromaVectorRetriever()
-            if retriever.count() == 0:
+            retriever = self._get_vector_retriever()
+            corpus_count = self._get_vector_count(retriever)
+            if corpus_count == 0:
                 return None
+            start = time.perf_counter()
             results = retriever.retrieve_similar(query, top_k=top_k)
         except Exception:
             return None
@@ -108,17 +114,32 @@ class RetrieverAgent:
             summary=f"Retrieved {len(evidence)} evidence chunks from ChromaDB.",
             data={
                 "retrieved_count": len(evidence),
-                "corpus_chunks": retriever.count(),
+                "corpus_chunks": corpus_count,
                 "retrieval_backend": "chromadb",
                 "vector_db": "ChromaDB",
                 "embedding_model": "local_hashing_embedder_384d",
                 "retrieval_strategy": "hybrid vector + lexical + metadata reranking",
+                "retrieval_seconds": round(time.perf_counter() - start, 3),
             },
             evidence=evidence,
             confidence=round(sum(item.score for item in evidence) / max(len(evidence), 1), 3),
         )
 
+    def _get_vector_retriever(self) -> ChromaVectorRetriever:
+        if self._vector_retriever is None:
+            self._vector_retriever = ChromaVectorRetriever()
+        return self._vector_retriever
+
+    def _get_vector_count(self, retriever: ChromaVectorRetriever) -> int:
+        if self._vector_count is None:
+            self._vector_count = retriever.count()
+        return self._vector_count
+
     def _load_chunks(self, paths: List[Path]) -> List[dict]:
+        cache_key = tuple(str(path.resolve()) for path in paths)
+        if cache_key in self._chunk_cache:
+            return self._chunk_cache[cache_key]
+
         chunks = []
         for path in paths:
             if not path.exists() or path.is_dir():
@@ -136,6 +157,7 @@ class RetrieverAgent:
                         "text": chunk,
                     }
                 )
+        self._chunk_cache[cache_key] = chunks
         return chunks
 
     def _read_document(self, path: Path) -> str:

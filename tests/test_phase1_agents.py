@@ -160,3 +160,25 @@ def test_user_friendly_answer_uses_conservative_risk_profile():
     assert answer["reserve_amount"] == 850.0
     assert answer["allocations"][0]["amount"] == 150.0
     assert "conservative risk preference" in answer["key_points"][0]
+
+
+def test_user_friendly_answer_caps_single_stock_buy_allocation():
+    answer = build_user_friendly_answer(
+        "If I want to invest $1000, where should I invest?",
+        [
+            {
+                "ticker": "PFE",
+                "recommendation": "Buy",
+                "investment_score": 62.22,
+                "drivers": {
+                    "sentiment_score": 0.58,
+                    "risk_score": 50,
+                    "expected_return_pct": 2.7,
+                },
+            }
+        ],
+    )
+
+    assert answer["allocations"][0]["amount"] == 350.0
+    assert answer["reserve_amount"] == 650.0
+    assert "putting the full amount into one stock" in answer["summary_cards"][0]["detail"]

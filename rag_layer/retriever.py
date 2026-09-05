@@ -5,6 +5,7 @@ Chroma vector database retriever for Phase 1 RAG.
 from __future__ import annotations
 
 import re
+import os
 from pathlib import Path
 from typing import Dict, Iterable, List
 
@@ -72,11 +73,14 @@ class VectorRetriever:
         return self.count()
 
     def retrieve_similar(self, query: str, top_k: int = 5) -> List[Dict]:
-        if self.count() == 0:
+        corpus_count = self.count()
+        if corpus_count == 0:
             return []
 
         query_embedding = self.embedder.embed_text(query)
-        candidate_count = min(self.count(), max(top_k * 20, 2000))
+        default_candidates = max(top_k * 12, 120)
+        configured_candidates = int(os.getenv("FIE_VECTOR_CANDIDATES", str(default_candidates)))
+        candidate_count = min(corpus_count, max(top_k, configured_candidates))
         result = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=candidate_count,

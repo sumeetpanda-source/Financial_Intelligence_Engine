@@ -305,6 +305,16 @@ textarea {
   max-width: 760px;
 }
 
+.primary-action {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--accent);
+  background: #ffffff;
+  color: #172420;
+  font-weight: 780;
+  line-height: 1.45;
+}
+
 .query-tags {
   display: flex;
   flex-wrap: wrap;
@@ -353,6 +363,39 @@ textarea {
 
 .answer-section {
   margin-top: 18px;
+}
+
+.answer-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.answer-stat {
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.answer-stat span,
+.answer-stat small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.answer-stat span {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.answer-stat strong {
+  display: block;
+  margin: 5px 0;
+  font-size: 20px;
+  color: var(--ink);
 }
 
 .two-column {
@@ -437,6 +480,22 @@ textarea {
   cursor: pointer;
   font-weight: 800;
   color: var(--accent-2);
+}
+
+.timing-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timing-row span {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: #33403b;
+  font-size: 12px;
+  font-weight: 720;
+  text-transform: capitalize;
 }
 
 .answer-text h3,
@@ -717,6 +776,7 @@ tbody tr:hover {
   .overview-grid,
   .file-grid,
   .ask-layout,
+  .answer-stats,
   .suggestion-grid,
   .decision-hero,
   .two-column {
@@ -738,6 +798,7 @@ tbody tr:hover {
   .overview-grid,
   .file-grid,
   .ask-layout,
+  .answer-stats,
   .suggestion-grid,
   .decision-hero,
   .two-column {
