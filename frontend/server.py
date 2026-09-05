@@ -279,16 +279,67 @@ def extract_budget_amount(question: str) -> float | None:
     return QUERY_INTELLIGENCE.extract_budget(question)
 
 
+def parse_portfolio_holdings(portfolio_text: str, question: str = "") -> list[dict]:
+    ownership_terms = ["i own", "i hold", "my portfolio", "currently own", "currently hold", "holding"]
+    question_context = question if any(term in (question or "").lower() for term in ownership_terms) else ""
+    raw = f"{portfolio_text or ''} {question_context or ''}".upper()
+    if not raw.strip():
+        return []
+
+    ignored = {
+        "A", "AI", "AM", "AND", "ARE", "BUY", "CAN", "DAYS", "ETF", "FOR",
+        "HAVE", "HOLD", "I", "IN", "INVEST", "IS", "ME", "MY", "NOW", "OR",
+        "SELL", "SHARE", "SHARES", "SHOULD", "STOCK", "STOCKS", "THE", "TO",
+        "USD", "VS", "WHERE", "WHICH", "WHY", "YOU",
+    }
+    holdings: dict[str, dict] = {}
+    for ticker, dollar_marker, value in re.findall(r"\b([A-Z]{1,5})\b(?:\s*(?:[:=X-]|SHARES?|WORTH)?\s*(\$?)(\d+(?:\.\d+)?))?", raw):
+        if ticker in ignored:
+            continue
+        if ticker not in holdings:
+            holdings[ticker] = {"ticker": ticker, "quantity": None, "market_value": None, "raw": ticker}
+        if value:
+            if dollar_marker == "$":
+                holdings[ticker]["market_value"] = float(value)
+                holdings[ticker]["raw"] = f"{ticker} ${value}"
+            else:
+                holdings[ticker]["quantity"] = float(value)
+                holdings[ticker]["raw"] = f"{ticker} {value}"
+    return list(holdings.values())[:12]
+
+
 def format_usd(amount: float | int | None) -> str:
     if amount is None:
         return "the provided budget"
     return f"${float(amount):,.2f}"
 
 
+def simple_signal_label(recommendation: str) -> str:
+    text_value = (recommendation or "").lower()
+    if "buy" in text_value:
+        return "Consider"
+    if "sell" in text_value:
+        return "Avoid"
+    return "Watch"
+
+
+def simple_reason(item: dict) -> str:
+    drivers = item.get("drivers", {})
+    risk = drivers.get("risk_score", "N/A")
+    expected_return = drivers.get("expected_return_pct", "N/A")
+    recommendation = item.get("recommendation", "Hold")
+    if "Buy" in recommendation:
+        return f"Better current signal with risk score {risk} and expected return {expected_return}%."
+    if "Sell" in recommendation:
+        return f"Excluded because the current model signal is {recommendation}."
+    return f"Hold-level signal, so use only as a watchlist or small staged entry."
+
+
 def build_user_friendly_answer(
     question: str,
     suggestions: list[dict],
     query_profile: dict | None = None,
+    portfolio_text: str = "",
 ) -> dict:
     query_profile = query_profile or QUERY_INTELLIGENCE.classify(question).to_dict()
     budget = query_profile.get("budget")
@@ -309,6 +360,7 @@ def build_user_friendly_answer(
     ]
     best = eligible[0] if eligible else ranked[0] if ranked else {}
     has_strong_signal = bool(buy_signals)
+    portfolio_holdings = parse_portfolio_holdings(portfolio_text, question)
 
     if not ranked:
         return {
@@ -319,6 +371,11 @@ def build_user_friendly_answer(
             "budget": budget,
             "reserve_amount": budget,
             "allocations": [],
+            "portfolio": {
+                "holdings": portfolio_holdings,
+                "overlap_with_plan": [],
+                "message": "No current portfolio was provided." if not portfolio_holdings else "Portfolio holdings were detected from your input.",
+            },
             "summary_cards": [
                 {
                     "label": "Decision",
@@ -384,11 +441,8 @@ def build_user_friendly_answer(
                     "amount": round(amount, 2),
                     "recommendation": item.get("recommendation"),
                     "score": item.get("investment_score"),
-                    "reason": (
-                        f"Score {item.get('investment_score')}; "
-                        f"risk {drivers.get('risk_score', 'N/A')}; "
-                        f"expected return {drivers.get('expected_return_pct', 'N/A')}%"
-                    ),
+                    "action": simple_signal_label(item.get("recommendation")),
+                    "reason": simple_reason(item),
                 }
             )
 
@@ -398,6 +452,12 @@ def build_user_friendly_answer(
         reserve_amount = round(budget - sum(item["amount"] for item in allocations), 2)
 
     invested_amount = round(sum(item["amount"] for item in allocations), 2)
+    allocated_tickers = {item.get("ticker") for item in allocations}
+    portfolio_overlap = [
+        item["ticker"]
+        for item in portfolio_holdings
+        if item["ticker"] in allocated_tickers
+    ]
     if budget is not None and has_strong_signal:
         primary_action = (
             f"Invest up to {format_usd(invested_amount)} across the selected candidates and "
@@ -426,15 +486,18 @@ def build_user_friendly_answer(
     top_tickers = ", ".join(item.get("ticker", "") for item in ranked[:5])
     risk_text = f"{risk_profile} risk preference"
     key_points = [
-        f"Intent detected: {query_profile.get('intent', 'general_analysis').replace('_', ' ')}; risk style: {risk_text}.",
-        f"Forecast horizon used: {horizon_days} days.",
-        f"Candidates reviewed: {top_tickers}.",
-        f"Highest score today: {best.get('ticker', 'N/A')} with a {best.get('recommendation', 'N/A')} signal.",
-        "Sell and Strong Sell candidates are excluded from allocation.",
+        f"I treated this as a {risk_text} question over about {horizon_days} days.",
+        f"I reviewed these candidates from the current model universe: {top_tickers}.",
+        f"The strongest current candidate is {best.get('ticker', 'N/A')}, but the signal is {best.get('recommendation', 'N/A')}, not a guaranteed buy.",
+        "I excluded Sell and Strong Sell names from any investable allocation.",
     ]
     if not has_strong_signal:
         key_points.append(
             "No strong Buy signal is present, so the system keeps a larger reserve instead of forcing a recommendation."
+        )
+    if portfolio_overlap:
+        key_points.append(
+            f"You already hold {', '.join(portfolio_overlap)}, so avoid adding too much concentration there."
         )
 
     return {
@@ -445,6 +508,18 @@ def build_user_friendly_answer(
         "budget": budget,
         "reserve_amount": reserve_amount,
         "allocations": allocations,
+        "portfolio": {
+            "holdings": portfolio_holdings,
+            "overlap_with_plan": portfolio_overlap,
+            "message": (
+                f"You already hold {', '.join(item['ticker'] for item in portfolio_holdings)}. "
+                f"{', '.join(portfolio_overlap)} also appears in the suggested watchlist."
+                if portfolio_overlap
+                else "These are the holdings you provided for context."
+                if portfolio_holdings
+                else "No current portfolio was provided. Add holdings in the portfolio box to see overlap with new suggestions."
+            ),
+        },
         "summary_cards": [
             {
                 "label": "Suggested action",
@@ -479,7 +554,7 @@ def build_user_friendly_answer(
     }
 
 
-def ask_investment_question(question: str) -> dict:
+def ask_investment_question(question: str, portfolio_text: str = "") -> dict:
     tickers = extract_tickers(question)
     orchestrator = get_orchestrator()
     result = orchestrator.run(question, tickers=tickers or None)
@@ -497,8 +572,9 @@ def ask_investment_question(question: str) -> dict:
         "question": question,
         "query_profile": query_profile,
         "tickers": result["tickers"],
+        "portfolio_input": portfolio_text,
         "answer": result["final_report"],
-        "user_answer": build_user_friendly_answer(question, suggestions, query_profile),
+        "user_answer": build_user_friendly_answer(question, suggestions, query_profile, portfolio_text),
         "suggestions": suggestions,
         "evidence": summarize_evidence(retrieval.evidence),
         "performance": result.get("performance", {}),
@@ -530,10 +606,11 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             body = self.rfile.read(content_length).decode("utf-8")
             payload = json.loads(body or "{}")
             question = str(payload.get("question", "")).strip()
+            portfolio_text = str(payload.get("portfolio", "")).strip()
             if not question:
                 self.send_json({"error": "Question is required."}, status=400)
                 return
-            self.send_json(ask_investment_question(question))
+            self.send_json(ask_investment_question(question, portfolio_text))
         except Exception as exc:
             self.send_json({"error": str(exc)}, status=500)
 

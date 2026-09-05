@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from agents import OrchestratorAgent
 from agents.explainability_agent import ExplainabilityAgent
 from agents.query_intelligence import QueryIntelligence
-from frontend.server import build_user_friendly_answer
+from frontend.server import build_user_friendly_answer, parse_portfolio_holdings
 
 
 class HallucinatingProvider:
@@ -182,3 +182,34 @@ def test_user_friendly_answer_caps_single_stock_buy_allocation():
     assert answer["allocations"][0]["amount"] == 350.0
     assert answer["reserve_amount"] == 650.0
     assert "putting the full amount into one stock" in answer["summary_cards"][0]["detail"]
+
+
+def test_user_friendly_answer_includes_user_portfolio_context():
+    answer = build_user_friendly_answer(
+        "I have $1000. Where should I invest?",
+        [
+            {
+                "ticker": "JPM",
+                "recommendation": "Hold",
+                "investment_score": 55.0,
+                "drivers": {
+                    "sentiment_score": 0.45,
+                    "risk_score": 25,
+                    "expected_return_pct": 0.7,
+                },
+            }
+        ],
+        portfolio_text="AAPL 5 shares, MSFT $800",
+    )
+
+    assert answer["portfolio"]["holdings"][0]["ticker"] == "AAPL"
+    assert answer["portfolio"]["holdings"][1]["ticker"] == "MSFT"
+    assert answer["portfolio"]["holdings"][0]["quantity"] == 5.0
+    assert answer["portfolio"]["holdings"][1]["market_value"] == 800.0
+    assert "provided for context" in answer["portfolio"]["message"]
+
+
+def test_portfolio_parser_does_not_treat_comparison_question_as_holdings():
+    holdings = parse_portfolio_holdings("", "Compare AAPL and MSFT")
+
+    assert holdings == []

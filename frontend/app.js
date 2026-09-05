@@ -201,6 +201,8 @@ function renderAskAnswer(payload) {
   const userAnswer = payload.user_answer || {};
   const queryProfile = payload.query_profile || {};
   const intentLabel = text(queryProfile.intent || "general_analysis").replace(/_/g, " ");
+  const portfolio = userAnswer.portfolio || {};
+  const holdings = portfolio.holdings || [];
   const allocations = (userAnswer.allocations || []).map((item) => `
     <div class="allocation-row">
       <div>
@@ -209,7 +211,7 @@ function renderAskAnswer(payload) {
       </div>
       <div>
         <strong>${money(item.amount)}</strong>
-        <span class="pill ${recClass(item.recommendation)}">${text(item.recommendation)}</span>
+        <span class="pill ${recClass(item.recommendation)}">${text(item.action || item.recommendation)}</span>
       </div>
     </div>
   `).join("");
@@ -217,6 +219,13 @@ function renderAskAnswer(payload) {
   const keyPoints = (userAnswer.key_points || []).map((point) => `<li>${text(point)}</li>`).join("");
   const methodology = (userAnswer.methodology || []).map((point) => `<li>${text(point)}</li>`).join("");
   const nextSteps = (userAnswer.next_steps || []).map((point) => `<li>${text(point)}</li>`).join("");
+  const portfolioRows = holdings.map((item) => `
+    <span class="holding-pill">
+      <strong>${text(item.ticker)}</strong>
+      ${item.market_value ? `<small>${money(item.market_value)}</small>` : ""}
+      ${item.quantity ? `<small>${text(item.quantity)} shares</small>` : ""}
+    </span>
+  `).join("");
   const summaryCards = (userAnswer.summary_cards || []).map((card) => `
     <div class="answer-stat">
       <span>${text(card.label)}</span>
@@ -291,7 +300,15 @@ function renderAskAnswer(payload) {
       </section>
 
       <section class="answer-section">
-        <h3>${text(userAnswer.allocation_title || "Suggested Action")}</h3>
+        <h3>What You Should Do</h3>
+        <div class="plain-answer">
+          <strong>${text(userAnswer.primary_action || "Review the suggested plan below.")}</strong>
+          <span>${text(userAnswer.risk_note || payload.disclaimer)}</span>
+        </div>
+      </section>
+
+      <section class="answer-section">
+        <h3>Where To Invest</h3>
         ${allocations ? `
           <div class="allocation-list">${allocations}</div>
         ` : `
@@ -299,24 +316,27 @@ function renderAskAnswer(payload) {
         `}
       </section>
 
-      <section class="answer-section two-column">
+      <section class="answer-section portfolio-summary">
         <div>
-          <h3>Why This Answer</h3>
+          <h3>Your Current Portfolio</h3>
+          <p>${text(portfolio.message || "No current portfolio was provided.")}</p>
+          <div class="holding-list">${portfolioRows || "<span class='muted-text'>Add holdings in the portfolio box to make this section useful.</span>"}</div>
+        </div>
+      </section>
+
+      <section class="answer-section two-column compact-explain">
+        <div>
+          <h3>Why This Makes Sense</h3>
           <ul class="clean-list">${keyPoints}</ul>
         </div>
         <div>
-          <h3>How It Was Calculated</h3>
-          <ul class="clean-list">${methodology}</ul>
+          <h3>Next Steps</h3>
+          <ul class="clean-list next-steps">${nextSteps}</ul>
         </div>
       </section>
 
       <section class="answer-section">
-        <h3>Next Steps</h3>
-        <ul class="clean-list next-steps">${nextSteps}</ul>
-      </section>
-
-      <section class="answer-section">
-        <h3>Signal Check</h3>
+        <h3>Stocks Reviewed</h3>
         <div class="suggestion-grid">${suggestions}</div>
       </section>
 
@@ -329,13 +349,15 @@ function renderAskAnswer(payload) {
         </div>
         <h3>Agent Signals</h3>
         <div class="agent-grid">${agents}</div>
+        <h3>Methodology</h3>
+        <ul class="clean-list">${methodology}</ul>
         <h3>Retrieved Evidence</h3>
         <div class="evidence-grid">${evidence || "<p>No evidence returned.</p>"}</div>
         <h3>Raw Grounded Report</h3>
         <div class="answer-text">${markdownToHtml(payload.answer)}</div>
       </details>
 
-      <p class="disclaimer">${text(userAnswer.risk_note || payload.disclaimer)}</p>
+      <p class="disclaimer">This assistant is educational decision support. Confirm with live market data and your own risk comfort before investing.</p>
     </div>
   `;
 }
@@ -357,7 +379,9 @@ async function askQuestion(question) {
   }, 1200);
 
   try {
-    const payload = await postJson("/api/ask", { question });
+    const portfolio = document.getElementById("portfolioInput").value.trim();
+    localStorage.setItem("fiePortfolioInput", portfolio);
+    const payload = await postJson("/api/ask", { question, portfolio });
     clearInterval(loadingTimer);
     renderAskAnswer(payload);
     status.textContent = payload.performance?.total_seconds
@@ -394,6 +418,11 @@ function bindEvents() {
     const question = document.getElementById("questionInput").value.trim();
     if (question) askQuestion(question);
   });
+
+  const savedPortfolio = localStorage.getItem("fiePortfolioInput");
+  if (savedPortfolio) {
+    document.getElementById("portfolioInput").value = savedPortfolio;
+  }
 
   document.querySelectorAll(".prompt-chips button").forEach((button) => {
     button.addEventListener("click", () => {

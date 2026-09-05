@@ -919,6 +919,14 @@ The project is pushed to GitHub and the Render Blueprint has been deployed.
 - Made the Ask answer more product-friendly by showing a primary action,
   reserve amount, staged allocation plan, summary cards, next steps, and a
   collapsed technical trace.
+- Reworked the visible Ask response from technical explanation into plain user
+  sections: `What You Should Do`, `Where To Invest`, `Your Current Portfolio`,
+  `Why This Makes Sense`, and `Stocks Reviewed`.
+- Added optional portfolio context input in the frontend so users can enter
+  holdings such as `AAPL 5 shares, MSFT $800`.
+- Added portfolio parsing in `/api/ask`, including quantity/value detection and
+  overlap detection when a suggested ticker already exists in the user's
+  portfolio.
 - Added a single-stock allocation cap so the assistant does not put most of a
   user budget into one ticker even when only one Buy signal appears.
 - Verified the Ask path improvement from about 8.8 seconds to about 2.0 seconds
